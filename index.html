@@ -192,7 +192,9 @@ tfoot td { font-weight:700; border-top:2px solid var(--line); }
 
 .price b { color:var(--up); }
 .searchbox { position:relative; flex:1 1 300px; max-width:460px; }
-.searchbox .search { width:100%; padding-right:38px; }
+.searchbox .search { width:100%; padding-left:38px; padding-right:38px; }
+.sicon { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--muted); pointer-events:none; }
+.searchbox:focus-within .sicon { color:var(--accent); }
 .searchbox .search::-webkit-search-cancel-button { display:none; }
 .sclear { position:absolute; right:7px; top:50%; transform:translateY(-50%); width:26px; height:26px; border-radius:50%; border:0;
           background:var(--down); color:#fff; font-size:18px; line-height:1; cursor:pointer; display:grid; place-items:center; padding:0 0 2px; }
@@ -270,7 +272,7 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   .chartbox { height:220px; } .chartbox.sm { height:180px; }
   .goal { gap:10px; } .goal .gp { min-width:0; flex-basis:100%; margin-left:0; }
   .alertbar { font-size:12.5px; padding:9px 10px; }
-  .filters { gap:8px; } .search { width:100%; min-width:0; font-size:16px; padding:10px 40px 10px 11px; }
+  .filters { gap:8px; } .search { width:100%; min-width:0; font-size:16px; padding:10px 40px 10px 40px; }
   .sclear { width:30px; height:30px; font-size:20px; }
   .searchbox { flex-basis:100%; max-width:none; }
   .chips { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; max-width:100%; }
@@ -319,9 +321,86 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   .grouph { margin:12px 2px 6px; }
 }
 
+
+/* ================= CALM LOOK (minimal, soft cards) ================= */
+:root { --bg:#f5f7fb; --line:#edf0f5; --t-blue:#eaf2ff; --t-green:#e8f6ee; --t-peach:#fff1e5; --t-pink:#fdecee; }
+body.dark { --t-blue:#152238; --t-green:#12281f; --t-peach:#2a2017; --t-pink:#2c1a1e; }
+.panel, .kpi { border:0 !important; border-radius:18px; box-shadow:0 1px 3px rgba(16,24,40,.05); }
+body.dark .panel, body.dark .kpi { box-shadow:none; }
+.ccard { background:var(--panel); border-radius:18px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(16,24,40,.05); }
+body.dark .ccard { box-shadow:none; }
+.ccard.tint-blue { background:var(--t-blue); } .ccard.tint-green { background:var(--t-green); }
+.ccard.tint-peach { background:var(--t-peach); } .ccard.tint-pink { background:var(--t-pink); }
+.tint-blue, .tint-green, .tint-peach, .tint-pink { box-shadow:none !important; }
+.countline { color:var(--muted); font-size:13.5px; margin:2px 2px 14px; }
+.countline b { color:var(--ink); font-weight:600; }
+.calmtop { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:12px; margin-bottom:12px; }
+.calmtop .ccard { margin:0; }
+.calmside { display:grid; gap:12px; }
+.cl { color:var(--muted); font-size:13.5px; }
+.cv { font-size:26px; font-weight:700; margin-top:6px; line-height:1.1; }
+.ccard.big { display:flex; flex-direction:column; justify-content:center; }
+.ccard.big .cv { font-size:42px; letter-spacing:-.5px; }
+.cs { color:var(--muted); font-size:12.5px; margin-top:6px; line-height:1.45; }
+.cs .delta { font-size:12.5px; }
+.cs .link { font-size:12.5px; padding:0; color:var(--accent); }
+.ch { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-weight:600; font-size:15.5px; margin-bottom:4px; }
+.ch small { color:var(--muted); font-weight:400; font-size:12.5px; }
+.lrow { display:grid; grid-template-columns:10px minmax(0,1fr) auto auto; align-items:center; gap:12px; padding:12px 0; border-top:1px solid var(--line); }
+.ch + .lrow { border-top:0; }
+.lrow > i { width:10px; height:10px; border-radius:50%; }
+.lrow .ln { font-weight:500; } .lrow .ln small { display:block; color:var(--muted); font-weight:400; font-size:12px; margin-top:1px; }
+.lrow > b { font-size:19px; font-weight:700; text-align:right; }
+.lrow .lm { color:var(--up); font-weight:600; min-width:58px; text-align:right; }
+.lrow .lm:empty { min-width:0; }
+.meatwrap { display:grid; grid-template-columns:150px minmax(0,1fr); gap:22px; align-items:center; }
+.meatrows .lrow:first-child { border-top:0; }
+.donut { position:relative; width:150px; height:150px; }
+.donut canvas { width:150px !important; height:150px !important; }
+.donutc { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+.donutc b { font-size:24px; font-weight:700; line-height:1; } .donutc small { color:var(--muted); font-size:11.5px; margin-top:3px; }
+.mixwrap { display:grid; grid-template-columns:170px minmax(0,1fr); gap:18px; align-items:center; }
+.mixwrap .chartbox { height:170px; }
+details.ccard > summary { cursor:pointer; font-weight:600; font-size:15.5px; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+details.ccard > summary::-webkit-details-marker { display:none; }
+details.ccard > summary::after { content:"\203A"; color:var(--muted); font-size:22px; transition:transform .2s; }
+details.ccard[open] > summary::after { transform:rotate(90deg); }
+details.ccard[open] > summary { margin-bottom:10px; }
+.pair { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; margin-bottom:12px; align-items:stretch; }
+.pair > .ccard { margin:0; }
+@media (max-width: 860px) { .pair { grid-template-columns:1fr; gap:10px; margin-bottom:10px; } }
+.calmrow3 { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-bottom:10px; }
+.calmrow3 .ccard { margin:0; }
+.infoline { color:var(--muted); font-size:13px; margin:2px 2px 12px; display:flex; gap:14px; flex-wrap:wrap; }
+.infoline b { color:var(--ink); } .infoline .bad { color:var(--down); font-weight:600; }
+.alertbar { border:0; border-radius:14px; background:var(--t-pink); }
+.clearall { border:0; background:var(--t-pink); color:var(--down); font:inherit; font-size:13px; font-weight:600; border-radius:16px; padding:7px 14px; cursor:pointer; flex:0 0 auto; }
+.clearall:hover { background:var(--down); color:#fff; }
+.clearall[hidden] { display:none; }
+.chiprow { display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; width:100%; }
+.chiprow .chips { flex-wrap:nowrap; flex:0 0 auto; }
+.chiprow .chips + .chips { border-left:1px solid var(--line); padding-left:6px; }
+.chips button { border:0; background:var(--panel); box-shadow:0 1px 2px rgba(16,24,40,.06); }
+.chips button.on { background:var(--accent); color:#fff; box-shadow:none; }
+.swipehint span, .swipehint br { display:none; }
+@media (max-width: 720px) {
+  .ccard { padding:14px; border-radius:16px; margin-bottom:10px; }
+  .calmtop { gap:10px; margin-bottom:10px; } .calmside { gap:10px; }
+  .ccard.big .cv { font-size:30px; }
+  .cv { font-size:22px; }
+  .cl { font-size:12.5px; }
+  .meatwrap { grid-template-columns:1fr; gap:6px; justify-items:center; }
+  .meatrows { width:100%; }
+  .donut, .donut canvas { width:140px !important; height:140px !important; }
+  .mixwrap { grid-template-columns:130px minmax(0,1fr); gap:12px; }
+  .mixwrap .chartbox { height:130px; }
+  .calmrow3 { gap:8px; } .calmrow3 .cv { font-size:22px; }
+  .lrow { gap:10px; padding:11px 0; } .lrow > b { font-size:17px; }
+  .top .sub { display:none; }
+}
 </style>
 </head>
-<body class="dark">
+<body>
 <div class="app">
   <aside class="side">
     <div class="brand"><div class="logo">LM</div><span>Lilia's BBQ<br>Fundraiser</span></div>
@@ -355,36 +434,33 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
 
     <!-- DASHBOARD -->
     <section class="view" id="view-dashboard">
-      <div class="panel hero" id="hero"><div class="status">Pulling orders from the sheet...</div></div>
+      <div class="countline" id="countLine">Loading orders...</div>
       <div id="alert"></div>
-      <div class="kpis two" id="kpiTop"></div>
-      <div class="grouph">Meats <span>plates of each meat</span></div>
-      <div class="kpis three" id="kpiMeat"></div>
-      <div class="grouph">Sides <span>plates of each side</span></div>
-      <div class="kpis three" id="kpiSide"></div>
-      <div class="row2c">
-        <div class="panel">
-          <div class="ph"><h3>Plate mix</h3><span class="muted" style="font-size:12.5px" id="mixSub"></span></div>
-          <div class="chartbox sm"><canvas id="cMix"></canvas></div>
-          <div class="mixlegend" id="mixLegend"></div>
+      <div class="calmtop">
+        <div class="ccard tint-blue big" id="salesCard"></div>
+        <div class="calmside">
+          <div class="ccard tint-green" id="platesCard"></div>
+          <div class="ccard tint-peach" id="ordersCard"></div>
         </div>
-        <div class="panel"><div class="ph"><h3>Meat by side</h3><button class="link" data-goto="prep">Kitchen prep</button></div><div class="chartbox"><canvas id="cCombo"></canvas></div></div>
       </div>
-      <div class="row2c">
-        <div class="panel"><div class="ph"><h3>Estimated sales by meat</h3><span class="muted" style="font-size:12.5px" id="salesSub"></span></div><div class="chartbox"><canvas id="cSales"></canvas></div></div>
-        <div class="panel"><div class="ph"><h3>Latest orders</h3><button class="link" data-goto="orders">View all</button></div><div class="tablewrap" id="latest"></div></div>
-      </div>
-      <div class="panel"><div class="ph"><h3>Activity feed</h3><span class="muted" style="font-size:12px" id="feedSince"></span></div><div class="feed" id="feed"></div></div>
+      <div class="ccard" id="meatList"></div>
+      <div class="ccard" id="sideList"></div>
+      <details class="ccard" id="recentBox">
+        <summary>Recent activity</summary>
+        <div class="ch" style="font-size:14px">Latest orders <button class="link" data-goto="orders">View all</button></div>
+        <div class="tablewrap" id="latest"></div>
+        <div class="ch" style="font-size:14px;margin-top:14px">Changes <small id="feedSince"></small></div>
+        <div class="feed" id="feed"></div>
+      </details>
     </section>
 
     <!-- ORDERS -->
     <section class="view" id="view-orders" hidden>
       <div class="panel">
         <div class="filters">
-          <div class="searchbox"><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div>
-          <div class="chips" id="meatChips"></div>
-          <div class="chips" id="sideChips"></div>
-          <div class="chips" id="flagChips"></div>
+          <div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div>
+          <div class="chiprow"><div class="chips" id="meatChips"></div><div class="chips" id="sideChips"></div><div class="chips" id="flagChips"></div></div>
+          <button class="clearall" id="clearFilt" type="button" hidden>Clear all filters</button>
         </div>
         <div class="tablewrap"><table id="ordersTable"></table></div>
       </div>
@@ -392,12 +468,12 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
 
     <!-- KITCHEN PREP -->
     <section class="view" id="view-prep" hidden>
-      <div class="filters"><div class="searchbox"><input class="search" type="search" id="searchPrep" data-search="1" placeholder="Find a customer's order" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div></div>
+      <div class="filters"><div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="searchPrep" data-search="1" placeholder="Find a customer's order" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div></div>
       <div id="prepFind"></div>
-      <div class="grouph">Meats to cook <span>plates plus extra pieces from notes</span></div>
-      <div class="kpis three" id="prepMeat"></div>
-      <div class="grouph">Sides to make</div>
-      <div class="kpis three" id="prepSide"></div>
+      <div class="pair">
+        <div class="ccard" id="prepMeat"></div>
+        <div class="ccard" id="prepSide"></div>
+      </div>
       <div class="row2">
         <div class="panel"><div class="ph"><h3>Plates to make (meat x side)</h3></div><div class="tablewrap" id="comboFull"></div></div>
         <div class="panel"><div class="ph"><h3>When orders are needed</h3></div><div class="tablewrap" id="timeTable"></div></div>
@@ -407,15 +483,15 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
 
     <!-- DELIVERIES -->
     <section class="view" id="view-deliv" hidden>
+      <div class="filters"><div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="searchDeliv" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div><div class="chips" id="delivChips"></div></div>
+      <div id="delivFound"></div>
       <div id="delivNoCol"></div>
-      <div class="kpis five" id="delivKpis"></div>
+      <div id="delivKpis"></div>
       <div class="panel" style="margin-bottom:12px">
         <div class="ph"><h3>Progress</h3><span class="muted" style="font-size:12.5px" id="delivPct"></span></div>
         <div class="stack" id="delivStack"></div>
         <div class="stacklegend" id="delivLegend"></div>
       </div>
-      <div class="filters"><div class="searchbox"><input class="search" type="search" id="searchDeliv" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div><div class="chips" id="delivChips"></div></div>
-      <div id="delivFound"></div>
       <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="readyTitle">Packaged, waiting to go out</h3></div><div class="tablewrap" id="readyTable"></div></div>
       <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="pendTitle">Still to package</h3></div><div class="tablewrap" id="pendTable"></div></div>
       <div class="panel"><details id="doneBox"><summary id="doneTitle">Delivered</summary><div class="tablewrap" id="doneTable" style="margin-top:10px"></div></details></div>
@@ -822,6 +898,11 @@ var MEATVAR={"Chicken":"var(--chicken)","Pork":"var(--pork)","Italian Sausage":"
 var SIDENAME={rice:"Rice and Beans",tort:"Flour Tortillas",none:"No side / unclear"}, SIDECLS={rice:"rice",tort:"tort",none:""};
 function money(v){ return "$"+v.toLocaleString(); }
 function pct(a,b){ return b? Math.round(a/b*100)+"%" : "0%"; }
+function listCard(title,sub,rows){
+  return '<div class="ch">'+title+(sub?' <small>'+sub+'</small>':'')+'</div>'+rows.map(function(r){
+    return '<div class="lrow"><i style="background:'+r.c+'"></i><span class="ln">'+r.n+(r.d?'<small>'+r.d+'</small>':'')+'</span><b>'+r.v+'</b><span class="lm">'+(r.m||'')+'</span></div>';
+  }).join("");
+}
 function vm(v){ return '<span class="vmoney">'+money(v)+'</span>'; }
 function kpi(label,val,det,color,cls){ return '<div class="panel kpi '+(cls||"")+'" style="border-top-color:'+(color||"var(--line)")+'"><div class="lbl">'+(color?'<i style="background:'+color+'"></i>':'')+esc(label)+'</div><div class="val">'+val+'</div><div class="det">'+(det||"&nbsp;")+'</div></div>'; }
 function bars(items,total){
@@ -942,7 +1023,7 @@ var charts={};
 function cv(n){ return getComputedStyle(document.body).getPropertyValue(n).trim(); }
 function mk(id,cfg){
   var cvs=$(id); if(!cvs) return;
-  if(!window.Chart){ cvs.parentNode.innerHTML='<div class="status">Charts need an internet connection to load.</div>'; return; }
+  if(!window.Chart){ if(cvs.parentNode.classList.contains("donut")) cvs.style.display="none"; else cvs.parentNode.innerHTML='<div class="status">Charts need an internet connection to load.</div>'; return; }
   if(charts[id]) charts[id].destroy();
   charts[id]=new Chart(cvs,cfg);
 }
@@ -957,22 +1038,7 @@ function drawCharts(t,L){
   if($("view-dashboard").hidden) return;
   var mixVals=MEATS.map(function(m){return t.meat[m]}), mixCols=MEATS.map(function(m){return cv(MEATVAR[m].slice(4,-1))});
   mk("cMix",{type:"doughnut",data:{labels:MEATS,datasets:[{data:mixVals,backgroundColor:mixCols,borderColor:cv("--panel"),borderWidth:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"68%",plugins:{legend:{display:false}}}});
-  $("mixSub").textContent=t.plates+" plates";
-  $("mixLegend").innerHTML='<div class="mh">Meats</div>'+MEATS.map(function(m,i){return '<div class="l"><i style="background:'+mixCols[i]+'"></i>'+m+'<b>'+t.meat[m]+'</b><small>'+pct(t.meat[m],t.plates)+'</small></div>'}).join("")+'<div class="mh">Sides</div>'+
-    '<div class="l"><i style="background:'+cv("--rice")+'"></i>Rice and Beans<b>'+t.side.rice+'</b><small>'+pct(t.side.rice,t.plates)+'</small></div>'+
-    '<div class="l"><i style="background:'+cv("--tort")+'"></i>Flour Tortillas<b>'+t.side.tort+'</b><small>'+pct(t.side.tort,t.plates)+'</small></div>';
-
-  mk("cCombo",{type:"bar",data:{labels:MEATS,datasets:[
-      {label:"Rice and Beans",data:MEATS.map(function(m){return t.combo[m+"|rice"]||0}),backgroundColor:cv("--rice"),borderRadius:4},
-      {label:"Flour Tortillas",data:MEATS.map(function(m){return t.combo[m+"|tort"]||0}),backgroundColor:cv("--tort"),borderRadius:4}]},
-    options:baseOpts({scales:{x:{stacked:true,grid:{display:false},ticks:{color:cv("--muted")}},y:{stacked:true,beginAtZero:true,grid:{color:cv("--line")},ticks:{color:cv("--muted"),precision:0}}}})});
-
-  var SL=MEATS.concat(["Extras & combos"]); var sales=MEATS.map(function(m){return t.salesMeat[m]}).concat([Math.round((t.sales-t.salesBase)*100)/100]);
-  $("salesSub").textContent=money(t.sales)+" total";
-  mk("cSales",{type:"bar",data:{labels:SL,datasets:[{label:"Est. sales",data:sales,backgroundColor:mixCols.concat([cv("--accent")]),borderRadius:4}]},
-    options:baseOpts({indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){ var m=MEATS[c.dataIndex]; return m? money(c.raw)+"  ("+t.meat[m]+" plates x $"+PRICES[m]+")" : money(c.raw)+"  (extra tortillas and combo prices)"; }}}},
-      scales:{x:{beginAtZero:true,grid:{color:cv("--line")},ticks:{color:cv("--muted"),callback:function(v){return "$"+v}}},y:{grid:{display:false},ticks:{color:cv("--muted")}}}})});
+    options:{responsive:true,maintainAspectRatio:false,cutout:"72%",animation:{duration:300},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return " "+c.label+": "+c.raw+" plates ("+pct(c.raw,t.plates)+")"}}}}}});
 }
 
 /* ---------- dashboard ---------- */
@@ -985,31 +1051,27 @@ function renderDash(t,L){
   var h=tr.hist, sd=todayDelta(h,"s",t.sales);
   var GP=groupOrders(L), packed=GP.filter(function(g){return g.packaged}).length, deliv=GP.filter(function(g){return g.delivered}).length;
   var extrasSales=Math.round((t.sales-t.salesBase)*100)/100;
-  $("hero").innerHTML=
-    '<div class="he"><div class="hei"><div class="gl">Fundraiser dinner \u00b7 Sat, Oct 17 \u00b7 6 PM \u00b7 Suku\'uno\'ob</div>'+
-      '<div class="gt"><b>'+when+'</b>'+' \u00b7 '+GP.length+' orders'+(data.cols.pack>=0?' \u00b7 '+packed+' packaged':'')+(data.cols.deliv>=0?' \u00b7 '+deliv+' delivered':'')+'</div></div>'+
-      '<div class="heg">'+(goal?'<div class="row"><span><b>'+t.plates+'</b> of '+goal+' plates goal</span><small>'+pct(t.plates,goal)+' \u00b7 <button class="link" id="goalBtn">change</button></small></div><div class="progress"><i style="width:'+Math.min(100,t.plates/goal*100)+'%"></i></div>'+
-        '<div class="row" style="margin-top:6px"><small>'+(t.plates>=goal?'Goal reached':(goal-t.plates)+' plates to go')+'</small></div>'
-        :'<div class="row"><span class="muted">No plates goal set</span><button class="iconbtn" id="goalBtn">Set a goal</button></div>')+'</div>'+'</div>'+
-    '<div><div class="hl"><i></i>Estimated sales</div><div class="hv">'+money(t.sales)+'</div>'+
-      '<div class="hd">'+(deltaHtml(sd,money)||"")+(extrasSales?'<span>includes '+money(extrasSales)+' extras &amp; combos</span>':'')+(t.unpriced?'<span title="'+esc(t.unpricedOrders.join(", "))+'">'+t.unpriced+' extra'+(t.unpriced>1?'s':'')+' not priced yet</span>':'')+'</div>'+
-''+'</div></div>';
+  $("countLine").innerHTML='<b>'+when+'</b> \u00b7 Sat, Oct 17 \u00b7 6 PM \u00b7 Suku\'uno\'ob'+
+    (data.cols.pack>=0?' \u00b7 '+packed+' packaged':'')+(data.cols.deliv>=0?' \u00b7 '+deliv+' delivered':'');
+  $("salesCard").innerHTML='<div class="cl">Estimated sales</div><div class="cv">'+money(t.sales)+'</div>'+
+    '<div class="cs">'+(sd.n>0?deltaHtml(sd,money)+'<br>':'')+(extrasSales?'includes '+money(extrasSales)+' extras &amp; combos':'')+(t.unpriced?'<br>'+t.unpriced+' extra'+(t.unpriced>1?'s':'')+' not priced yet':'')+'</div>';
+  $("platesCard").innerHTML='<div class="cl">Plates</div><div class="cv">'+t.plates+'</div>'+
+    '<div class="cs">'+(goal?pct(t.plates,goal)+' of '+goal+' goal \u00b7 <button class="link" id="goalBtn">change</button>':'<button class="link" id="goalBtn">Set a goal</button>')+'</div>';
+  $("ordersCard").innerHTML='<div class="cl">Orders</div><div class="cv">'+GP.length+'</div><div class="cs">'+t.orders+' rows in the sheet</div>';
   $("goalBtn").onclick=function(){ var v=prompt("Plates goal for the fundraiser (a number):",goal||""); if(v===null) return; v=parseInt(v,10); lsSet("lmGoal",v>0?v:0); renderAll(); };
 
-  $("alert").innerHTML=t.review?'<div class="alertbar"><b>'+t.review+'</b> order'+(t.review>1?'s have':' has')+' notes that need a look (possible extra plates or unclear extras). <button class="iconbtn" data-goto2="review">Review</button></div>':'';
+  $("alert").innerHTML=t.review?'<div class="alertbar"><b>'+t.review+'</b> order'+(t.review>1?'s have':' has')+' notes that need a look. <button class="iconbtn" data-goto2="review">Review</button></div>':'';
   var ab=document.querySelector("[data-goto2]"); if(ab) ab.onclick=function(){go("review")};
 
-  $("kpiTop").innerHTML=
-    kpiS("Total plates",t.plates,deltaHtml(todayDelta(h,"p",t.plates)),"","var(--accent)")+
-    kpiS("Total orders",GP.length,"","","var(--accent)","",GP.length?t.orders+" rows in the sheet \u00b7 avg "+(t.plates/GP.length).toFixed(1)+" plates per order":"");
-  $("kpiMeat").innerHTML=
-    kpi("Chicken",t.meat.Chicken+vm(t.salesMeat.Chicken),pct(t.meat.Chicken,t.plates)+" of plates"+(t.chickExtra?" \u00b7 +"+t.chickExtra+" combo":""),"var(--chicken)")+
-    kpi("Pork",t.meat.Pork+vm(t.salesMeat.Pork),pct(t.meat.Pork,t.plates)+" of plates"+(t.porkExtra?" \u00b7 +"+t.porkExtra+" combo":""),"var(--pork)")+
-    kpi("Italian Sausage",t.meat["Italian Sausage"]+vm(t.salesMeat["Italian Sausage"]),pct(t.meat["Italian Sausage"],t.plates)+" \u00b7 "+t.sausTotal+" sausages","var(--sausage)");
-  $("kpiSide").innerHTML=
-    kpi("Rice and Beans",t.side.rice,pct(t.side.rice,t.plates)+" of plates","var(--rice)")+
-    kpi("Tortilla plates",t.side.tort,pct(t.side.tort,t.plates)+" of plates","var(--tort)")+
-    kpi("Tortillas to make",t.tortTotal,t.tortPlates+" x 2 + "+t.tortExtra+" extra","var(--tort)");
+  var meatHtml=listCard("Meats","plates",[
+    {c:MEATVAR.Chicken,n:"Chicken",d:pct(t.meat.Chicken,t.plates)+(t.chickExtra?" \u00b7 +"+t.chickExtra+" combo piece"+(t.chickExtra>1?"s":""):""),v:t.meat.Chicken,m:money(t.salesMeat.Chicken)},
+    {c:MEATVAR.Pork,n:"Pork",d:pct(t.meat.Pork,t.plates)+(t.porkExtra?" \u00b7 +"+t.porkExtra+" combo piece"+(t.porkExtra>1?"s":""):""),v:t.meat.Pork,m:money(t.salesMeat.Pork)},
+    {c:MEATVAR["Italian Sausage"],n:"Italian Sausage",d:pct(t.meat["Italian Sausage"],t.plates)+" \u00b7 "+t.sausTotal+" sausages",v:t.meat["Italian Sausage"],m:money(t.salesMeat["Italian Sausage"])}]);
+  var mh=meatHtml.indexOf('<div class="lrow">');
+  $("meatList").innerHTML=meatHtml.slice(0,mh)+'<div class="meatwrap"><div class="donut"><canvas id="cMix"></canvas><div class="donutc"><b>'+t.plates+'</b><small>plates</small></div></div><div class="meatrows">'+meatHtml.slice(mh)+'</div></div>';
+  $("sideList").innerHTML=listCard("Sides","plates",[
+    {c:"var(--rice)",n:"Rice and Beans",d:pct(t.side.rice,t.plates),v:t.side.rice},
+    {c:"var(--tort)",n:"Flour Tortillas",d:pct(t.side.tort,t.plates)+" \u00b7 "+t.tortTotal+" tortillas to make",v:t.side.tort}]);
 
   var last=L.slice(-6).reverse();
   $("latest").innerHTML='<table class="keep"><tbody>'+last.map(function(o){return '<tr><td class="muted">#'+(L.indexOf(o)+1)+'</td><td>'+esc(o.name)+'</td><td class="n"><b>'+o.q+'</b></td><td>'+meatTag(o)+'</td><td>'+sideTag(o)+'</td></tr>'}).join("")+'</tbody></table>';
@@ -1139,12 +1201,12 @@ function renderDeliv(L){
   var next=G.filter(function(g){return g._due&&!g._late}).sort(function(a,b){return a._due-b._due})[0];
   var open=ready.length+pend.length;
   var bd=$("delivBadge"); bd.hidden=!(hasD||hasP)||!open; bd.textContent=open; bd.style.background=late.length?"var(--down)":"var(--accent)";
-  $("delivKpis").innerHTML=
-    kpi("To package",pend.length,pl(pend)+" plates","var(--chicken)")+
-    kpi("Packaged, not delivered",ready.length,pl(ready)+" plates ready to go","var(--accent)")+
-    kpi("Delivered",done.length+' <span class="muted" style="font-size:14px;font-weight:500">of '+G.length+'</span>',pl(done)+" plates out","var(--up)")+
-    kpi("Late",late.length,late.length?"past their time, not delivered":"nothing late",late.length?"var(--down)":"var(--up)",late.length?"alert":"")+
-    kpi("Next due",next?next.time:"-",next?esc(next.name)+" · "+next.q+" plate"+(next.q>1?"s":"")+(next.packaged?" · packaged":" · not packaged"):"no timed orders left","var(--pork)");
+  $("delivKpis").innerHTML='<div class="calmrow3">'+
+      '<div class="ccard tint-peach"><div class="cl">To package</div><div class="cv">'+pend.length+'</div><div class="cs">'+pl(pend)+' plates</div></div>'+
+      '<div class="ccard tint-blue"><div class="cl">Ready to go</div><div class="cv">'+ready.length+'</div><div class="cs">'+pl(ready)+' plates</div></div>'+
+      '<div class="ccard tint-green"><div class="cl">Delivered</div><div class="cv">'+done.length+'</div><div class="cs">of '+G.length+' orders</div></div></div>'+
+    '<div class="infoline">'+(next?'<span>Next due <b>'+esc(next.time)+'</b> \u00b7 '+esc(next.name)+(next.packaged?' (packaged)':' (not packaged)')+'</span>':'')+
+      (late.length?'<span class="bad">'+late.length+' late</span>':'')+'</div>';
   var P=pl(G)||1, w=function(a){return (pl(a)/P*100).toFixed(1)+"%"};
   $("delivStack").innerHTML='<i style="width:'+w(done)+';background:var(--up)" title="Delivered"></i><i style="width:'+w(ready)+';background:var(--accent)" title="Packaged"></i>';
   $("delivLegend").innerHTML='<span><i style="background:var(--up)"></i>Delivered <b>'+pl(done)+'</b></span><span><i style="background:var(--accent)"></i>Packaged, waiting <b>'+pl(ready)+'</b></span><span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To package <b>'+pl(pend)+'</b></span>';
@@ -1201,14 +1263,13 @@ function renderAll(){
   renderDash(t,L);
 
   // kitchen prep
-  $("prepMeat").innerHTML=
-    kpi("Chicken",t.meat.Chicken+t.chickExtra,t.meat.Chicken+" plates + "+t.chickExtra+" extra","var(--chicken)")+
-    kpi("Pork",t.meat.Pork+t.porkExtra,t.meat.Pork+" plates + "+t.porkExtra+" extra","var(--pork)")+
-    kpi("Italian Sausage",t.sausTotal,t.meat["Italian Sausage"]+" plates + "+t.sausExtra+" extra","var(--sausage)");
-  $("prepSide").innerHTML=
-    kpi("Rice and Beans",t.side.rice,"plates","var(--rice)")+
-    kpi("Tortilla plates",t.side.tort,"plates","var(--tort)")+
-    kpi("Tortillas to make",t.tortTotal,t.tortPlates+" x 2 + "+t.tortExtra+" extra","var(--tort)");
+  $("prepMeat").innerHTML=listCard("Meats to cook","plates + extra pieces",[
+    {c:MEATVAR.Chicken,n:"Chicken",d:t.meat.Chicken+" plates + "+t.chickExtra+" extra",v:t.meat.Chicken+t.chickExtra},
+    {c:MEATVAR.Pork,n:"Pork",d:t.meat.Pork+" plates + "+t.porkExtra+" extra",v:t.meat.Pork+t.porkExtra},
+    {c:MEATVAR["Italian Sausage"],n:"Italian Sausage",d:t.meat["Italian Sausage"]+" plates + "+t.sausExtra+" extra",v:t.sausTotal}]);
+  $("prepSide").innerHTML=listCard("Sides to make","",[
+    {c:"var(--rice)",n:"Rice and Beans",d:"plates",v:t.side.rice},
+    {c:"var(--tort)",n:"Tortillas to make",d:t.tortPlates+" tortilla plates x 2 + "+t.tortExtra+" extra",v:t.tortTotal}]);
   $("comboFull").innerHTML=comboTable(t);
   var tm={}; L.forEach(function(o){ var k=o.time||"No time given"; if(!tm[k]) tm[k]={orders:0,plates:0,names:[]}; tm[k].orders++; tm[k].plates+=o.q; tm[k].names.push(o.name); });
   var tk=Object.keys(tm).sort(function(a,b){return timeKey(a)-timeKey(b)});
@@ -1249,6 +1310,8 @@ function renderOrders(){
     if(filt.flag==="Needs review"&&!o.flag) return false;
     return true;
   };
+  var nAct=(filt.meat!=="All")+(filt.side!=="All")+(filt.flag!=="All")+(filt.q?1:0);
+  var cb=$("clearFilt"); cb.hidden=!nAct; cb.textContent="Clear all filters ("+nAct+")";
   var G=groupOrders(data.list).filter(function(g){
     if(!g.rows.some(rowOk)) return false;
     if(q&&norm(g.name+" "+g.notes.join(" ")).indexOf(q)<0) return false;
@@ -1281,7 +1344,7 @@ function load(){
   }).catch(function(e){
     showError(e.message); $("dot").className="dot err";
     $("lastUpdated").textContent=state.lastOk?"Last good "+state.lastOk:"Not loaded";
-    if(!data) $("kpiTop").innerHTML='<div class="panel status" style="grid-column:1/-1">No data yet.</div>';
+    if(!data) $("countLine").textContent="No data yet.";
   }).then(function(){ state.busy=false; state.left=REFRESH_SECONDS; });
 }
 function tick(){ state.left--; $("countdown").textContent="· next in "+Math.max(state.left,0)+"s"; if(state.left<=0) load(); }
@@ -1303,6 +1366,7 @@ function go(v,dir){
 document.querySelectorAll("#nav button").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-view"))}; });
 document.querySelectorAll("[data-goto]").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-goto"))}; });
 document.addEventListener("click",function(e){ var b=e.target.closest(".chips button"); if(!b||!data) return; filt[b.getAttribute("data-k")]=b.getAttribute("data-v"); renderOrders(); cardify(); });
+$("clearFilt").onclick=function(){ filt.meat="All"; filt.side="All"; filt.flag="All"; setSearch(""); if(data){ renderOrders(); cardify(); } };
 var searchT=null;
 function setSearch(v){
   filt.q=v;
@@ -1330,7 +1394,7 @@ $("refreshBtn").onclick=function(){ load(); };
 })();
 function setTheme(dark){ document.body.classList.toggle("dark",dark); $("themeBtn").title=dark?"Switch to light mode":"Switch to dark mode"; try{localStorage.setItem("lmTheme",dark?"dark":"light")}catch(e){} }
 $("themeBtn").onclick=function(){ setTheme(!document.body.classList.contains("dark")); if(data) renderAll(); };
-(function(){ var th=null; try{th=localStorage.getItem("lmTheme")}catch(e){} setTheme(th!=="light"); })();
+(function(){ var th=null; try{th=localStorage.getItem("lmTheme")}catch(e){} setTheme(th==="dark"); })();
 
 load(); state.timer=setInterval(tick,1000);
 </script>
