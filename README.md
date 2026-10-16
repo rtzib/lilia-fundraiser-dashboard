@@ -12,6 +12,7 @@ Live dashboard for Grandma Lilia's BBQ fundraiser (Sat, Oct 17, 2026, 6 PM, Suku
 | File | What it is |
 |---|---|
 | `index.html` | The whole dashboard (one file, no install). |
+| `manifest.webmanifest`, `icons/` | App name and icon, so it can be added to a phone's home screen. |
 
 ## Updating
 

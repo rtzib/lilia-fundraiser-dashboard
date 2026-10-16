@@ -1,0 +1,16 @@
+{
+  "name": "Lilia's BBQ Fundraiser",
+  "short_name": "Lilia BBQ",
+  "description": "Live orders, kitchen prep and deliveries for Grandma Lilia's BBQ fundraiser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b111c",
+  "theme_color": "#0b111c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
