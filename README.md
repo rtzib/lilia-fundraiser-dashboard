@@ -21,7 +21,7 @@ The numbers update on their own from the sheet. Only push a new commit when the 
 
 - `SHEET_URL` - the order sheet.
 - `PRICES` - plate prices (Chicken 10, Pork 12, Italian Sausage 8).
-- `EXTRA_PRICES` - extra pieces (tortilla 1; others not set yet).
+- `EXTRA_PRICES` - extra pieces (tortilla 1, sausage 3; pork/chicken pieces not set, use a `$` price in the note for combos).
 - `REFRESH_SECONDS` - how often it re-reads the sheet (30).
 
 ## Writing notes in the sheet

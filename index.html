@@ -181,6 +181,12 @@ tfoot td { font-weight:700; border-top:2px solid var(--line); }
 @media (max-width: 600px) { .hero .heg { flex-basis:100%; min-width:0; } .hero .he { gap:10px; } }
 
 
+
+.price b { color:var(--up); }
+.item { margin:2px 0; white-space:nowrap; } .item .tag { margin-left:2px; }
+td.items { min-width:220px; }
+.tag.g { background:rgba(23,138,74,.13); color:var(--up); }
+
 /* Packaged / Delivered buttons */
 td.act { white-space:nowrap; }
 .actbtn { font:inherit; font-size:12.5px; font-weight:600; border-radius:8px; padding:6px 10px; margin:2px 4px 2px 0; cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
@@ -254,7 +260,8 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   /* tables turn into one card per order */
   table.cards, table.cards tbody, table.cards tr, table.cards td { display:block; width:100%; }
   table.cards thead { display:none; }
-  table.cards tr { border:1px solid var(--line); border-radius:12px; padding:9px 12px; margin:0 0 8px; background:var(--panel); }
+  table.cards tr { border:1px solid var(--line); border-radius:12px; padding:9px 12px; margin:0 0 8px; background:var(--panel); display:flex !important; flex-direction:column; }
+  table.cards td.title { order:-1; }
   table.cards tr.flag { border-color:rgba(192,57,43,.45); }
   table.cards tr.flag td { background:transparent; }
   table.cards td { border:0; padding:3px 0; display:flex; justify-content:space-between; gap:12px; text-align:right; }
@@ -263,7 +270,6 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   table.cards td:empty, table.cards td.blank { display:none; }
   table.cards td.title { font-size:15.5px; font-weight:600; justify-content:flex-start; text-align:left; padding-bottom:5px; border-bottom:1px solid var(--line); margin-bottom:4px; }
   table.cards td.title::before { display:none; }
-  table.cards td.title .qty { margin-left:auto; color:var(--muted); font-weight:500; }
   table.cards tfoot { display:block; } table.cards tfoot tr { background:var(--panel2); }
   table.cards tfoot td::before { content:none; }
   .tablewrap { overflow:visible; }
@@ -271,6 +277,11 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   .keepwrap { overflow-x:auto; }
   .rv .it { padding:10px 0; }
   .help ul { padding-left:18px; }
+
+  table.cards td.price b { font-size:16px; color:var(--up); }
+  table.cards td.items { display:block; text-align:left; }
+  table.cards td.items::before { display:block; margin-bottom:3px; }
+  table.cards .item { white-space:normal; padding:3px 0; }
 
   table.cards td.act { display:flex; justify-content:flex-start; gap:8px; padding-top:8px; margin-top:4px; border-top:1px solid var(--line); }
   table.cards td.act::before { display:none; }
@@ -437,7 +448,7 @@ var SHEET_URL = "https://docs.google.com/spreadsheets/d/1ialgGVukQo7XC-jHpgMpyM5
 var REFRESH_SECONDS = 30;
 var WRITE_URL = "https://script.google.com/macros/s/AKfycbxgC-yOAYlmfHlYLsgYLAHdxUu-rZq894zkcXiYh4xokuvWFMw494y-2T2pAcA8DR5C/exec";   // Apps Script web app link that lets the Packaged / Delivered buttons tick the sheet ("" = buttons hidden)
 var PRICES = { "Chicken":10, "Pork":12, "Italian Sausage":8 };   // plate prices from the flyer, in BZ$
-var EXTRA_PRICES = { tortilla:1, sausage:null, pork:null, chicken:null };   // per extra piece; null = no price yet
+var EXTRA_PRICES = { tortilla:1, sausage:3, pork:null, chicken:null };   // per extra piece; null = no price yet
 // A price written in the notes (like "$18") is the total for that order and replaces the math above.
 /* ================================== */
 
@@ -950,11 +961,11 @@ function renderDash(t,L){
   if(ms>0){ var dd=Math.floor(ms/86400000), hh=Math.floor(ms%86400000/3600000), mm=Math.floor(ms%3600000/60000); when=(dd?dd+" day"+(dd>1?"s":"")+" ":"")+hh+" hr "+(dd?"":mm+" min ")+"to go"; }
   else if(ms>-5*3600000) when="Happening now"; else when="Event is over";
   var h=tr.hist, sd=todayDelta(h,"s",t.sales);
-  var packed=L.filter(function(o){return o.packaged||o.delivered}).length, deliv=L.filter(function(o){return o.delivered}).length;
+  var GP=groupOrders(L), packed=GP.filter(function(g){return g.packaged}).length, deliv=GP.filter(function(g){return g.delivered}).length;
   var extrasSales=Math.round((t.sales-t.salesBase)*100)/100;
   $("hero").innerHTML=
     '<div class="he"><div class="hei"><div class="gl">Fundraiser dinner \u00b7 Sat, Oct 17 \u00b7 6 PM \u00b7 Suku\'uno\'ob</div>'+
-      '<div class="gt"><b>'+when+'</b>'+(data.cols.pack>=0?' \u00b7 '+packed+' packaged':'')+(data.cols.deliv>=0?' \u00b7 '+deliv+' delivered':'')+'</div></div>'+
+      '<div class="gt"><b>'+when+'</b>'+' \u00b7 '+GP.length+' orders'+(data.cols.pack>=0?' \u00b7 '+packed+' packaged':'')+(data.cols.deliv>=0?' \u00b7 '+deliv+' delivered':'')+'</div></div>'+
       '<div class="heg">'+(goal?'<div class="row"><span><b>'+t.plates+'</b> of '+goal+' plates goal</span><small>'+pct(t.plates,goal)+' \u00b7 <button class="link" id="goalBtn">change</button></small></div><div class="progress"><i style="width:'+Math.min(100,t.plates/goal*100)+'%"></i></div>'+
         '<div class="row" style="margin-top:6px"><small>'+(t.plates>=goal?'Goal reached':(goal-t.plates)+' plates to go')+'</small></div>'
         :'<div class="row"><span class="muted">No plates goal set</span><button class="iconbtn" id="goalBtn">Set a goal</button></div>')+'</div>'+'</div>'+
@@ -968,7 +979,7 @@ function renderDash(t,L){
 
   $("kpiTop").innerHTML=
     kpiS("Total plates",t.plates,deltaHtml(todayDelta(h,"p",t.plates)),"","var(--accent)")+
-    kpiS("Total orders",t.orders,deltaHtml(todayDelta(h,"o",t.orders)),"","var(--accent)","",t.orders?"avg "+(t.plates/t.orders).toFixed(1)+" plates per order":"");
+    kpiS("Total orders",GP.length,"","","var(--accent)","",GP.length?t.orders+" rows in the sheet \u00b7 avg "+(t.plates/GP.length).toFixed(1)+" plates per order":"");
   $("kpiMeat").innerHTML=
     kpi("Chicken",t.meat.Chicken+vm(t.salesMeat.Chicken),pct(t.meat.Chicken,t.plates)+" of plates"+(t.chickExtra?" \u00b7 +"+t.chickExtra+" combo":""),"var(--chicken)")+
     kpi("Pork",t.meat.Pork+vm(t.salesMeat.Pork),pct(t.meat.Pork,t.plates)+" of plates"+(t.porkExtra?" \u00b7 +"+t.porkExtra+" combo":""),"var(--pork)")+
@@ -988,12 +999,49 @@ function renderDash(t,L){
   drawCharts(t,L);
 }
 
+
+/* ---------- one order per person (rows with the same name are grouped) ---------- */
+function personKey(n){ return norm(n).replace(/\s+/g," "); }
+function groupOrders(L){
+  var map={}, out=[];
+  L.forEach(function(o){
+    var k=personKey(o.name);
+    if(!map[k]){ map[k]={key:k,name:o.name.replace(/\s+/g," ").trim(),rows:[],q:0,price:0,first:o.row}; out.push(map[k]); }
+    var g=map[k]; g.rows.push(o); g.q+=o.q; g.price+=(o.price||0);
+  });
+  out.forEach(function(g){
+    var R=g.rows;
+    g.delivered=R.every(function(o){return o.delivered});
+    g.packaged=R.every(function(o){return o.packaged||o.delivered});
+    g.packedN=R.filter(function(o){return o.packaged||o.delivered}).length;
+    g.delivN=R.filter(function(o){return o.delivered}).length;
+    g.flag=R.some(function(o){return o.flag});
+    g.notes=R.filter(function(o){return o.note}).map(function(o){return o.note});
+    var times=R.map(function(o){return o.time}).filter(Boolean).sort(function(a,b){return timeKey(a)-timeKey(b)});
+    g.time=times[0]||"";
+    g.rowList=R.map(function(o){return o.row});
+    g.unpriced=R.reduce(function(a,o){return a+orderPrice(o).unpriced},0);
+    g.fixed=R.some(function(o){return o.priceNote!=null});
+  });
+  return out;
+}
+function itemsHtml(g){
+  return g.rows.map(function(o){
+    var ex=extrasTxt(o);
+    return '<div class="item"><b>'+o.q+' x</b> '+meatTag(o)+' '+sideTag(o)+(ex?' <span class="muted">'+esc(ex)+'</span>':'')+
+      (data.cols.pack>=0||data.cols.deliv>=0?(o.delivered?' <span class="tag g">delivered</span>':o.packaged?' <span class="tag">packaged</span>':''):'')+'</div>';
+  }).join("");
+}
+function priceCell(g){ return '<td class="n price"><b>'+money(g.price)+'</b>'+(g.unpriced?'<br><small class="muted">+'+g.unpriced+' extra'+(g.unpriced>1?'s':'')+' not priced</small>':'')+'</td>'; }
+function rowsTxt(g){ return g.rowList.map(function(r){return "#"+r}).join(", "); }
+
 /* ---------- Packaged / Delivered buttons (write to the sheet) ---------- */
 var pendingW={}, wN=0;
-function actBtns(o){
-  var a=function(field,val,cls,label){ return '<button class="actbtn '+cls+'" data-act="'+field+'" data-val="'+val+'" data-row="'+o.row+'" data-name="'+esc(o.name)+'">'+label+'</button>'; };
-  if(o.delivered) return a("delivered","false","undo","Undo delivered");
-  if(o.packaged) return a("delivered","true","dl","Delivered")+a("packaged","false","undo","Undo packaged");
+function actBtns(g){
+  // one button acts on every sheet row for this person
+  var a=function(field,val,cls,label){ return '<button class="actbtn '+cls+'" data-act="'+field+'" data-val="'+val+'" data-key="'+esc(g.key)+'">'+label+'</button>'; };
+  if(g.delivered) return a("delivered","false","undo","Undo delivered");
+  if(g.packaged) return a("delivered","true","dl","Delivered")+a("packaged","false","undo","Undo packaged");
   return a("packaged","true","pk","Packaged")+a("delivered","true","dl","Delivered");
 }
 function toast(msg,bad){ var t=$("toast"); t.textContent=msg; t.className="toast show"+(bad?" bad":""); clearTimeout(toast._t); toast._t=setTimeout(function(){t.className="toast"+(bad?" bad":"")},bad?7000:3200); }
@@ -1017,30 +1065,38 @@ function applyPending(list){
 }
 function doWrite(btn){
   if(!WRITE_URL||!data) return;
-  var field=btn.getAttribute("data-act"), val=btn.getAttribute("data-val")==="true", row=+btn.getAttribute("data-row"), name=btn.getAttribute("data-name");
+  var field=btn.getAttribute("data-act"), val=btn.getAttribute("data-val")==="true", key=btn.getAttribute("data-key");
+  var g=groupOrders(data.list).filter(function(x){return x.key===key})[0]; if(!g) return;
+  // only the rows that actually need to change
+  var todo=g.rows.filter(function(o){ var cur=field==="delivered"?o.delivered:o.packaged; return cur!==val; });
+  if(!todo.length){ load(); return; }
   var pin=lsGet("lmPin",""); var asked=false;
   if(!pin){ pin=prompt("Family PIN to update orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
   var label=btn.textContent; btn.disabled=true; btn.textContent="Saving...";
-  var ci=data.cols[field==="delivered"?"deliv":"pack"];
-  var q="field="+field+"&value="+val+"&row="+row+"&col="+(ci>=0?ci+1:"")+"&name="+encodeURIComponent(name)+"&pin="+encodeURIComponent(pin);
-  jsonp(WRITE_URL+"?"+q).then(function(r){
-    if(r&&r.ok){
-      if(asked) lsSet("lmPin",pin);
-      pendingW[row+"|"+field]={v:val,until:Date.now()+90000};
-      applyPending(data.list); renderAll();
-      var what=field==="delivered"?(val?"delivered":"not delivered"):(val?"packaged":"not packaged");
-      toast(name.trim()+": marked "+what);
-      setTimeout(load,3000);
-      return;
-    }
-    btn.disabled=false; btn.textContent=label;
-    var e=r&&r.error;
-    if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} toast("Wrong PIN. Try again.",true); }
-    else if(e==="name_mismatch"){ toast("Sheet row "+row+" says \""+(r.found||"(empty)")+"\", not \""+name.trim()+"\". Nothing was changed. Refreshing...",true); load(); }
-    else if(e==="no_column"){ toast("The script couldn't find the "+(field==="delivered"?"Delivered?":"Packaged?")+" column. It sees: "+((r.headers||[]).join(" | ")||"no headers"),true); }
-    else if(e==="not_checkbox"){ toast("That cell isn't a checkbox (it has \""+(r.found||"")+"\"), so nothing was changed.",true); }
-    else toast("Couldn't save: "+(e||"unknown problem"),true);
-  }).catch(function(){ btn.disabled=false; btn.textContent=label; toast("Couldn't reach the sheet. Check the internet and try again.",true); });
+  var ci=data.cols[field==="delivered"?"deliv":"pack"], doneN=0;
+  var what=field==="delivered"?(val?"delivered":"not delivered"):(val?"packaged":"not packaged");
+  function finishOk(){
+    if(asked) lsSet("lmPin",pin);
+    applyPending(data.list); renderAll();
+    toast(g.name+": marked "+what+(g.rows.length>1?" ("+g.rows.length+" items)":""));
+    setTimeout(load,3000);
+  }
+  function fail(msg){ btn.disabled=false; btn.textContent=label; if(doneN){ applyPending(data.list); renderAll(); } toast(msg+(doneN?" ("+doneN+" of "+todo.length+" items were saved.)":""),true); }
+  function step(i){
+    if(i>=todo.length) return finishOk();
+    var o=todo[i];
+    var q="field="+field+"&value="+val+"&row="+o.row+"&col="+(ci>=0?ci+1:"")+"&name="+encodeURIComponent(o.name)+"&pin="+encodeURIComponent(pin);
+    jsonp(WRITE_URL+"?"+q).then(function(r){
+      if(r&&r.ok){ doneN++; pendingW[o.row+"|"+field]={v:val,until:Date.now()+90000}; if(asked&&doneN===1) lsSet("lmPin",pin); return step(i+1); }
+      var e=r&&r.error;
+      if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} fail("Wrong PIN. Try again."); }
+      else if(e==="name_mismatch"){ fail("Sheet row "+o.row+" says \""+(r.found||"(empty)")+"\", not \""+o.name.trim()+"\". Nothing more was changed. Refreshing..."); load(); }
+      else if(e==="no_column"){ fail("The script couldn't find the "+(field==="delivered"?"Delivered?":"Packaged?")+" column. It sees: "+((r.headers||[]).join(" | ")||"no headers")); }
+      else if(e==="not_checkbox"){ fail("Row "+o.row+" isn't a checkbox (it has \""+(r.found||"")+"\"), so it wasn't changed."); }
+      else fail("Couldn't save: "+(e||"unknown problem"));
+    }).catch(function(){ fail("Couldn't reach the sheet. Check the internet and try again."); });
+  }
+  step(0);
 }
 document.addEventListener("click",function(e){ var b=e.target.closest("[data-act]"); if(b){ e.preventDefault(); doWrite(b); } });
 
@@ -1051,30 +1107,34 @@ function renderDeliv(L){
   var hasD=data.cols.deliv>=0, hasP=data.cols.pack>=0, miss=[];
   if(!hasP) miss.push("Packaged?"); if(!hasD) miss.push("Delivered?");
   $("delivNoCol").innerHTML=miss.length?'<div class="warn">No <b>'+miss.join("</b> or <b>")+'</b> checkbox column found in the sheet. Add it and tick it as orders move along.</div>':"";
-  var now=Date.now(), pl=function(a){return a.reduce(function(x,o){return x+o.q},0)};
-  L.forEach(function(o){ var d=o.delivered?null:timeOnEvent(o.time); o._due=d; o._late=!!(d&&d.getTime()<now); });
-  var done=L.filter(function(o){return o.delivered});
-  var ready=L.filter(function(o){return !o.delivered&&o.packaged});
-  var pend=L.filter(function(o){return !o.delivered&&!o.packaged});
-  var late=L.filter(function(o){return o._late});
-  var next=L.filter(function(o){return o._due&&!o._late}).sort(function(a,b){return a._due-b._due})[0];
+  var now=Date.now(), pl=function(a){return a.reduce(function(x,g){return x+g.q},0)};
+  var G=groupOrders(L);
+  G.forEach(function(g){ var d=g.delivered?null:timeOnEvent(g.time); g._due=d; g._late=!!(d&&d.getTime()<now); });
+  var done=G.filter(function(g){return g.delivered});
+  var ready=G.filter(function(g){return !g.delivered&&g.packaged});
+  var pend=G.filter(function(g){return !g.delivered&&!g.packaged});
+  var late=G.filter(function(g){return g._late});
+  var next=G.filter(function(g){return g._due&&!g._late}).sort(function(a,b){return a._due-b._due})[0];
   var open=ready.length+pend.length;
   var bd=$("delivBadge"); bd.hidden=!(hasD||hasP)||!open; bd.textContent=open; bd.style.background=late.length?"var(--down)":"var(--accent)";
   $("delivKpis").innerHTML=
     kpi("To package",pend.length,pl(pend)+" plates","var(--chicken)")+
     kpi("Packaged, not delivered",ready.length,pl(ready)+" plates ready to go","var(--accent)")+
-    kpi("Delivered",done.length+' <span class="muted" style="font-size:14px;font-weight:500">of '+L.length+'</span>',pl(done)+" plates out","var(--up)")+
+    kpi("Delivered",done.length+' <span class="muted" style="font-size:14px;font-weight:500">of '+G.length+'</span>',pl(done)+" plates out","var(--up)")+
     kpi("Late",late.length,late.length?"past their time, not delivered":"nothing late",late.length?"var(--down)":"var(--up)",late.length?"alert":"")+
-    kpi("Next due",next?next.time:"-",next?esc(next.name.trim())+" \u00b7 "+next.q+" x "+esc(next.meat||next.meatTxt)+(next.packaged?" \u00b7 packaged":" \u00b7 not packaged"):"no timed orders left","var(--pork)");
-  var P=pl(L)||1, w=function(a){return (pl(a)/P*100).toFixed(1)+"%"};
+    kpi("Next due",next?next.time:"-",next?esc(next.name)+" · "+next.q+" plate"+(next.q>1?"s":"")+(next.packaged?" · packaged":" · not packaged"):"no timed orders left","var(--pork)");
+  var P=pl(G)||1, w=function(a){return (pl(a)/P*100).toFixed(1)+"%"};
   $("delivStack").innerHTML='<i style="width:'+w(done)+';background:var(--up)" title="Delivered"></i><i style="width:'+w(ready)+';background:var(--accent)" title="Packaged"></i>';
   $("delivLegend").innerHTML='<span><i style="background:var(--up)"></i>Delivered <b>'+pl(done)+'</b></span><span><i style="background:var(--accent)"></i>Packaged, waiting <b>'+pl(ready)+'</b></span><span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To package <b>'+pl(pend)+'</b></span>';
-  $("delivPct").textContent=Math.round(pl(done)/P*100)+"% of plates delivered \u00b7 "+Math.round((pl(done)+pl(ready))/P*100)+"% packaged";
+  $("delivPct").textContent=Math.round(pl(done)/P*100)+"% of plates delivered · "+Math.round((pl(done)+pl(ready))/P*100)+"% packaged";
   $("delivChips").innerHTML=["All","Has a time","Late"].map(function(c){return '<button data-df="'+c+'" class="'+(delivFilt===c?"on":"")+'">'+c+(c==="Late"&&late.length?" ("+late.length+")":"")+'</button>'}).join("");
-  var order=function(a){ var r=a.slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.row-y.row); });
-    if(delivFilt==="Has a time") r=r.filter(function(o){return o._due}); if(delivFilt==="Late") r=r.filter(function(o){return o._late}); return r; };
-  var row=function(o){ return '<tr class="'+(o._late?"flag":"")+'"><td><b>'+esc(o.time||"")+'</b>'+(o._late?' <span class="tag r">late</span>':'')+'</td><td>'+esc(o.name)+'</td><td class="n"><b>'+o.q+'</b></td><td>'+meatTag(o)+'</td><td>'+sideTag(o)+'</td><td>'+esc(extrasTxt(o))+'</td><td>'+esc(o.note)+'</td><td class="muted">#'+o.row+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(o)+'</td>':'')+'</tr>'; };
-  var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Meat</th><th>Side</th><th>Extras</th><th>Notes</th><th>Sheet row</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
+  var order=function(a){ var r=a.slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); });
+    if(delivFilt==="Has a time") r=r.filter(function(g){return g._due}); if(delivFilt==="Late") r=r.filter(function(g){return g._late}); return r; };
+  var part=function(g){ var n=g.rows.length; if(n<2) return "";
+    if(!g.delivered&&g.delivN) return ' <span class="tag">partly delivered '+g.delivN+' of '+n+'</span>';
+    if(!g.packaged&&g.packedN) return ' <span class="tag">partly packaged '+g.packedN+' of '+n+'</span>'; return ""; };
+  var row=function(g){ return '<tr class="'+(g._late?"flag":"")+'"><td><b>'+esc(g.time||"")+'</b>'+(g._late?' <span class="tag r">late</span>':'')+part(g)+'</td><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(g)+'</td>':'')+'</tr>'; };
+  var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
   var table=function(a,empty){ var r=order(a); return r.length?'<table>'+head+'<tbody>'+r.map(row).join("")+'</tbody></table>':'<p class="'+(a.length?"muted":"ok")+'" style="margin:4px 0">'+(a.length?"Nothing in this filter.":empty)+'</p>'; };
   $("readyTitle").textContent="Packaged, waiting to go out ("+ready.length+")";
   $("readyTable").innerHTML=table(ready,"Nothing packaged and waiting.");
@@ -1092,15 +1152,12 @@ function cardify(){
     var th=[].map.call(tb.querySelectorAll("thead th"),function(x){return x.textContent.trim()});
     if(!th.length) { tb.classList.add("keep"); return; }
     tb.classList.add("cards");
-    var nameIdx=th.indexOf("Name"), qtyIdx=th.indexOf("Qty");
+    var nameIdx=th.indexOf("Name");
     tb.querySelectorAll("tbody tr").forEach(function(tr){
       var tds=tr.children;
       [].forEach.call(tds,function(td,i){ td.setAttribute("data-label",th[i]||""); if(!td.textContent.trim()&&!td.querySelector("svg,.tag")) td.classList.add("blank"); });
-      if(nameIdx>=0&&tds[nameIdx]&&!tds[nameIdx].classList.contains("title")){
-        var t=tds[nameIdx]; t.classList.add("title");
-        if(qtyIdx>=0&&tds[qtyIdx]){ t.insertAdjacentHTML("beforeend",'<span class="qty">x '+tds[qtyIdx].textContent.trim()+'</span>'); tds[qtyIdx].classList.add("blank"); }
-        tr.insertBefore(t,tr.firstChild);
-      }
+      // the name is shown first on phone cards with CSS (order), so the computer table keeps its columns
+      if(nameIdx>=0&&tds[nameIdx]) tds[nameIdx].classList.add("title");
     });
   });
 }
@@ -1149,19 +1206,25 @@ function chips(el,key,opts){
 }
 function renderOrders(){
   chips($("meatChips"),"meat",["All"].concat(MEATS)); chips($("sideChips"),"side",["All","Rice & Beans","Tortilla"]); chips($("flagChips"),"flag",["All","Has notes","Needs review"]);
-  var q=norm(filt.q), L=data.list.filter(function(o){
+  var q=norm(filt.q);
+  var rowOk=function(o){
     if(filt.meat!=="All"&&o.meat!==filt.meat) return false;
     if(filt.side==="Rice & Beans"&&o.side!=="rice") return false;
     if(filt.side==="Tortilla"&&o.side!=="tort") return false;
     if(filt.flag==="Has notes"&&!o.note) return false;
     if(filt.flag==="Needs review"&&!o.flag) return false;
-    if(q&&norm(o.name+" "+o.note).indexOf(q)<0) return false;
+    return true;
+  };
+  var G=groupOrders(data.list).filter(function(g){
+    if(!g.rows.some(rowOk)) return false;
+    if(q&&norm(g.name+" "+g.notes.join(" ")).indexOf(q)<0) return false;
     return true;
   });
-  var pl=L.reduce(function(a,o){return a+o.q},0);
-  $("ordersTable").innerHTML='<thead><tr><th>Row</th><th>Name</th><th class="n">Qty</th><th>Meat</th><th>Side</th><th>Notes</th><th>Extras counted</th><th>Needed by</th><th class="n">Price</th></tr></thead><tbody>'+
-    (L.length?L.map(function(o){return '<tr class="'+(o.flag?"flag":"")+'" title="'+esc(o.flag)+'"><td class="muted">'+o.row+'</td><td>'+esc(o.name)+'</td><td class="n"><b>'+o.q+'</b></td><td>'+meatTag(o)+'</td><td>'+sideTag(o)+'</td><td>'+esc(o.note)+(o.flag?'<br><span class="tag r">review</span>':'')+'</td><td>'+esc(extrasTxt(o))+'</td><td>'+esc(o.time)+'</td><td class="n">'+(o.price!=null?money(o.price):'')+(o.priceNote!=null?' <span class="tag">set</span>':'')+'</td></tr>'}).join(""):'<tr><td colspan="9" class="muted">No orders match.</td></tr>')+
-    '</tbody><tfoot><tr><td></td><td>'+L.length+' orders</td><td class="n">'+pl+'</td><td colspan="6"></td></tr></tfoot>';
+  var pl=G.reduce(function(a,g){return a+g.q},0), lines=G.reduce(function(a,g){return a+g.rows.length},0);
+  $("ordersTable").innerHTML='<thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th class="n">Total price</th><th>Sheet rows</th></tr></thead><tbody>'+
+    (G.length?G.map(function(g){ return '<tr class="'+(g.flag?"flag":"")+'"><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+(g.flag?'<br><span class="tag r">review</span>':'')+'</td><td>'+esc(g.time)+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td></tr>'; }).join("")
+      :'<tr><td colspan="7" class="muted">No orders match.</td></tr>')+
+    '</tbody><tfoot><tr><td>'+G.length+' orders</td><td class="n">'+pl+'</td><td colspan="5" class="muted">'+lines+' rows in the sheet</td></tr></tfoot>';
 }
 
 /* ---------- loading ---------- */
