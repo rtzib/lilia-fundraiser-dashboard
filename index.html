@@ -183,9 +183,18 @@ tfoot td { font-weight:700; border-top:2px solid var(--line); }
 
 
 .price b { color:var(--up); }
+.searchbox { position:relative; flex:1 1 300px; max-width:460px; }
+.searchbox .search { width:100%; padding-right:38px; }
+.searchbox .search::-webkit-search-cancel-button { display:none; }
+.sclear { position:absolute; right:7px; top:50%; transform:translateY(-50%); width:26px; height:26px; border-radius:50%; border:0;
+          background:var(--down); color:#fff; font-size:18px; line-height:1; cursor:pointer; display:grid; place-items:center; padding:0 0 2px; }
+.sclear[hidden] { display:none; }
+.sclear:hover, .sclear:active { filter:brightness(1.12); }
+.findnote { color:var(--muted); font-size:12.5px; margin:-4px 2px 10px; }
 .item { margin:2px 0; white-space:nowrap; } .item .tag { margin-left:2px; }
 td.items { min-width:220px; }
 .tag.g { background:rgba(23,138,74,.13); color:var(--up); }
+.tag.o { background:rgba(217,130,43,.15); color:#d9822b; }
 
 /* Packaged / Delivered buttons */
 td.act { white-space:nowrap; }
@@ -253,7 +262,9 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
   .chartbox { height:220px; } .chartbox.sm { height:180px; }
   .goal { gap:10px; } .goal .gp { min-width:0; flex-basis:100%; margin-left:0; }
   .alertbar { font-size:12.5px; padding:9px 10px; }
-  .filters { gap:8px; } .search { width:100%; min-width:0; font-size:15px; padding:9px 11px; }
+  .filters { gap:8px; } .search { width:100%; min-width:0; font-size:16px; padding:10px 40px 10px 11px; }
+  .sclear { width:30px; height:30px; font-size:20px; }
+  .searchbox { flex-basis:100%; max-width:none; }
   .chips { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; max-width:100%; }
   .chips button { flex:0 0 auto; padding:7px 13px; }
   .bars .b { grid-template-columns:96px 1fr 44px; }
@@ -362,7 +373,7 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
     <section class="view" id="view-orders" hidden>
       <div class="panel">
         <div class="filters">
-          <input class="search" id="search" placeholder="Search name or note">
+          <div class="searchbox"><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div>
           <div class="chips" id="meatChips"></div>
           <div class="chips" id="sideChips"></div>
           <div class="chips" id="flagChips"></div>
@@ -373,6 +384,8 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
 
     <!-- KITCHEN PREP -->
     <section class="view" id="view-prep" hidden>
+      <div class="filters"><div class="searchbox"><input class="search" type="search" id="searchPrep" data-search="1" placeholder="Find a customer's order" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div></div>
+      <div id="prepFind"></div>
       <div class="grouph">Meats to cook <span>plates plus extra pieces from notes</span></div>
       <div class="kpis three" id="prepMeat"></div>
       <div class="grouph">Sides to make</div>
@@ -393,7 +406,8 @@ body.dark .themebtn .sun { opacity:1; transform:none; color:#f5c451; } body.dark
         <div class="stack" id="delivStack"></div>
         <div class="stacklegend" id="delivLegend"></div>
       </div>
-      <div class="filters"><div class="chips" id="delivChips"></div></div>
+      <div class="filters"><div class="searchbox"><input class="search" type="search" id="searchDeliv" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div><div class="chips" id="delivChips"></div></div>
+      <div id="delivFound"></div>
       <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="readyTitle">Packaged, waiting to go out</h3></div><div class="tablewrap" id="readyTable"></div></div>
       <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="pendTitle">Still to package</h3></div><div class="tablewrap" id="pendTable"></div></div>
       <div class="panel"><details id="doneBox"><summary id="doneTitle">Delivered</summary><div class="tablewrap" id="doneTable" style="margin-top:10px"></div></details></div>
@@ -1128,7 +1142,9 @@ function renderDeliv(L){
   $("delivLegend").innerHTML='<span><i style="background:var(--up)"></i>Delivered <b>'+pl(done)+'</b></span><span><i style="background:var(--accent)"></i>Packaged, waiting <b>'+pl(ready)+'</b></span><span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To package <b>'+pl(pend)+'</b></span>';
   $("delivPct").textContent=Math.round(pl(done)/P*100)+"% of plates delivered · "+Math.round((pl(done)+pl(ready))/P*100)+"% packaged";
   $("delivChips").innerHTML=["All","Has a time","Late"].map(function(c){return '<button data-df="'+c+'" class="'+(delivFilt===c?"on":"")+'">'+c+(c==="Late"&&late.length?" ("+late.length+")":"")+'</button>'}).join("");
-  var order=function(a){ var r=a.slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); });
+  var sq=norm(filt.q||""), hit=function(g){ return !sq||norm(g.name+" "+g.notes.join(" ")).indexOf(sq)>=0; };
+  if(sq){ var nHit=G.filter(hit).length; $("delivFound").innerHTML='<div class="findnote">'+(nHit?nHit+' order'+(nHit>1?'s':'')+' match "'+esc(filt.q)+'"':'No orders match "'+esc(filt.q)+'"')+'</div>'; if(done.some(hit)) $("doneBox").open=true; } else $("delivFound").innerHTML="";
+  var order=function(a){ var r=a.filter(hit).slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); });
     if(delivFilt==="Has a time") r=r.filter(function(g){return g._due}); if(delivFilt==="Late") r=r.filter(function(g){return g._late}); return r; };
   var part=function(g){ var n=g.rows.length; if(n<2) return "";
     if(!g.delivered&&g.delivN) return ' <span class="tag">partly delivered '+g.delivN+' of '+n+'</span>';
@@ -1136,12 +1152,14 @@ function renderDeliv(L){
   var row=function(g){ return '<tr class="'+(g._late?"flag":"")+'"><td><b>'+esc(g.time||"")+'</b>'+(g._late?' <span class="tag r">late</span>':'')+part(g)+'</td><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(g)+'</td>':'')+'</tr>'; };
   var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
   var table=function(a,empty){ var r=order(a); return r.length?'<table>'+head+'<tbody>'+r.map(row).join("")+'</tbody></table>':'<p class="'+(a.length?"muted":"ok")+'" style="margin:4px 0">'+(a.length?"Nothing in this filter.":empty)+'</p>'; };
-  $("readyTitle").textContent="Packaged, waiting to go out ("+ready.length+")";
+  var cnt=function(a){ var n=a.filter(hit).length; return sq?n+" of "+a.length:a.length; };
+  $("readyTitle").textContent="Packaged, waiting to go out ("+cnt(ready)+")";
   $("readyTable").innerHTML=table(ready,"Nothing packaged and waiting.");
-  $("pendTitle").textContent="Still to package ("+pend.length+")";
+  $("pendTitle").textContent="Still to package ("+cnt(pend)+")";
   $("pendTable").innerHTML=table(pend,"Everything is packaged.");
-  $("doneTitle").textContent="Delivered ("+done.length+")";
-  $("doneTable").innerHTML=done.length?'<table>'+head.replace("Needed by","Was needed by")+'<tbody>'+done.map(row).join("")+'</tbody></table>':'<p class="muted" style="margin:4px 0">Nothing ticked as delivered yet.</p>';
+  $("doneTitle").textContent="Delivered ("+cnt(done)+")";
+  var doneF=done.filter(hit);
+  $("doneTable").innerHTML=doneF.length?'<table>'+head.replace("Needed by","Was needed by")+'<tbody>'+doneF.map(row).join("")+'</tbody></table>':'<p class="muted" style="margin:4px 0">'+(done.length?"Nothing in this search.":"Nothing ticked as delivered yet.")+'</p>';
 }
 document.addEventListener("click",function(e){ var b=e.target.closest("[data-df]"); if(!b||!data) return; delivFilt=b.getAttribute("data-df"); renderDeliv(data.list); cardify(); });
 
@@ -1188,7 +1206,15 @@ function renderAll(){
   var tk=Object.keys(tm).sort(function(a,b){return timeKey(a)-timeKey(b)});
   $("timeTable").innerHTML='<table class="keep"><thead><tr><th>Needed by</th><th class="n">Orders</th><th class="n">Plates</th><th>Who</th></tr></thead><tbody>'+
     tk.map(function(k){var v=tm[k]; return '<tr><td><b>'+esc(k)+'</b></td><td class="n">'+v.orders+'</td><td class="n">'+v.plates+'</td><td class="muted">'+(k==="No time given"?"everyone else":esc(v.names.join(", ")))+'</td></tr>'}).join("")+'</tbody></table>';
-  var nt=L.filter(function(o){return o.note});
+  var kq=norm(filt.q||"");
+  if(kq){
+    var KG=groupOrders(L).filter(function(g){ return norm(g.name+" "+g.notes.join(" ")).indexOf(kq)>=0; });
+    $("prepFind").innerHTML='<div class="panel" style="margin-bottom:12px"><div class="ph"><h3>Matching orders ('+KG.length+')</h3><button class="link" data-sclear="1">Clear</button></div>'+
+      (KG.length?'<div class="tablewrap"><table><thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th>Status</th></tr></thead><tbody>'+
+        KG.map(function(g){ return '<tr><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td><td>'+esc(g.time)+'</td><td>'+(g.delivered?'<span class="tag g">delivered</span>':g.packaged?'<span class="tag">packaged</span>':'<span class="tag o">to package</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>'
+        :'<p class="muted" style="margin:4px 0">No orders match "'+esc(filt.q)+'".</p>')+'</div>';
+  } else $("prepFind").innerHTML="";
+  var nt=L.filter(function(o){return o.note&&(!kq||norm(o.name+" "+o.note).indexOf(kq)>=0)});
   $("notesTable").innerHTML=nt.length?'<table><thead><tr><th>Name</th><th class="n">Qty</th><th>Meat</th><th>Side</th><th>Note</th><th>Counted</th></tr></thead><tbody>'+
     nt.map(function(o){return '<tr class="'+(o.flag?"flag":"")+'"><td>'+esc(o.name)+'</td><td class="n">'+o.q+'</td><td>'+meatTag(o)+'</td><td>'+sideTag(o)+'</td><td>'+esc(o.note)+'</td><td>'+(esc(extrasTxt(o))||(o.flag?'<span class="tag r">review</span>':'<span class="muted">nothing extra</span>'))+'</td></tr>'}).join("")+'</tbody></table>':'<p class="muted">No notes on any order.</p>';
 
@@ -1269,7 +1295,14 @@ function go(v,dir){
 document.querySelectorAll("#nav button").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-view"))}; });
 document.querySelectorAll("[data-goto]").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-goto"))}; });
 document.addEventListener("click",function(e){ var b=e.target.closest(".chips button"); if(!b||!data) return; filt[b.getAttribute("data-k")]=b.getAttribute("data-v"); renderOrders(); cardify(); });
-$("search").addEventListener("input",function(){ filt.q=this.value; if(data){ renderOrders(); cardify(); } });
+var searchT=null;
+function setSearch(v){
+  filt.q=v;
+  document.querySelectorAll("[data-search]").forEach(function(inp){ if(inp.value!==v) inp.value=v; var c=inp.parentNode.querySelector("[data-sclear]"); if(c) c.hidden=!v; });
+  clearTimeout(searchT); searchT=setTimeout(function(){ if(data) renderAll(); },120);
+}
+document.addEventListener("input",function(e){ if(e.target.matches&&e.target.matches("[data-search]")) setSearch(e.target.value); });
+document.addEventListener("click",function(e){ var c=e.target.closest("[data-sclear]"); if(!c) return; setSearch(""); var inp=c.parentNode.querySelector("[data-search]"); if(inp) inp.focus(); });
 $("refreshBtn").onclick=function(){ load(); };
 (function(){
   var sx=0, sy=0, st=0, ok=false;
