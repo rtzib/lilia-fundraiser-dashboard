@@ -422,7 +422,9 @@ textarea.finput { resize:vertical; min-height:44px; }
 .segfull { display:grid; gap:6px; } .segfull.three { grid-template-columns:repeat(3,minmax(0,1fr)); } .segfull.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .segfull button { border:1px solid var(--line); background:var(--panel); color:var(--ink); font:inherit; font-size:14px; border-radius:12px; padding:12px 6px; cursor:pointer; line-height:1.2; }
 .segfull button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
-.iqrow { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+.iqrow { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+.exrow { display:flex; align-items:center; justify-content:space-between; padding:3px 0; font-size:14px; }
+.qty.sm button { width:34px; height:34px; font-size:18px; } .qty.sm b { min-width:24px; font-size:15px; }
 .iline { margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:13px; color:var(--muted); }
 .iline.done { color:var(--ink); font-weight:600; }
 .item-ed .irow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:4px 0; }
@@ -727,11 +729,11 @@ function parseNote(raw,item,qty,plateMeat){
   var skip=function(k){ while(SKIPW[toks[k]]&&!isItem(toks[k])) k++; return k; };
   var itemEnd=function(k){ return (isItem(toks[k+1])&&toks[k]!==toks[k+1]) ? k+1 : k; };   // "italian sausage"
   var used={}, total=0, flags=[], combo=toks.indexOf("combo")>=0;
-  function add(num,explicit,end){
+  function add(num,explicit,end,plus){
     var each=false;
     for(var q=end+1;q<toks.length&&q<=end+6;q++){ var w=toks[q]; if(w==="extra"||w==="+"||w==="add"||w===";"||w===",") break; if(EACHW[w]){each=true;break;} }
     if(each&&qty>1){
-      if(explicit&&num===qty){ var one=item==="tortilla"?"tortilla":label; flags.push("Not clear if "+num+" extra "+label+" is the total or per plate (write +1 "+one+" each, or +"+num+" "+one+")"); return; }
+      if(explicit&&num===qty&&!plus){ var one=item==="tortilla"?"tortilla":label; flags.push("Not clear if "+num+" extra "+label+" is the total or per plate (write +1 "+one+" each, or +"+num+" "+one+")"); return; }
       total+=num*qty;
     } else total+=num;
   }
@@ -741,7 +743,7 @@ function parseNote(raw,item,qty,plateMeat){
     if((toks[i]==="+"||toks[i]==="add"||toks[i]==="plus")&&isNum(toks[i+1])){
       var k=i+2; if(toks[k]==="more"||toks[k]==="extra") k++; k=skip(k);
       var vagueItalian = item==="sausage" && toks[k]==="italian" && !/^sausage/.test(toks[k+1]||"") && toks[i+2]!=="extra" && toks[i+2]!=="more";
-      if(isItem(toks[k])&&!vagueItalian){ k=itemEnd(k); for(var z=i;z<=k;z++) used[z]=1; add(+toks[i+1],true,k); i=k; continue; }
+      if(isItem(toks[k])&&!vagueItalian){ k=itemEnd(k); for(var z=i;z<=k;z++) used[z]=1; add(+toks[i+1],true,k,toks[i]==="+"); i=k; continue; }
     }
     // "3 more tortillas"
     if(isNum(toks[i])&&toks[i+1]==="more"){
@@ -1177,7 +1179,7 @@ function rowsTxt(g){ return g.rowList.map(function(r){return "#"+r}).join(", ");
 /* ---------- New order form (adds rows to the sheet through the script) ---------- */
 var noState=null;
 var NO_MEATS=["Chicken","Pork","Italian Sausage"], NO_SIDES=[["rice","Rice & Beans"],["tort","Tortilla"]];
-function noReset(){ noState={items:[{q:1,meat:null,side:null}],tort:0,saus:0}; ["noName","noTime","noNotes"].forEach(function(i){$(i).value=""}); $("noErr").textContent=""; }
+function noReset(){ noState={items:[{q:1,meat:null,side:null,tort:0,saus:0}]}; ["noName","noTime","noNotes"].forEach(function(i){$(i).value=""}); $("noErr").textContent=""; }
 function noOpen(){
   if(!WRITE_URL){ toast("Adding orders isn't switched on yet.",true); return; }
   if(!noState) noReset();
@@ -1188,25 +1190,30 @@ function noOpen(){
   setTimeout(function(){ $("noName").focus(); },50);
 }
 function noClose(){ $("orderModal").hidden=true; document.body.style.overflow=""; }
+function noItemPrice(it){ return it.meat? it.q*((PRICES[it.meat]||0)+it.tort*(EXTRA_PRICES.tortilla||0)+it.saus*(EXTRA_PRICES.sausage||0)) : 0; }
+function noItemNote(it){ var p=[], e=it.q>1?" each":""; if(it.tort) p.push("+"+it.tort+" tortilla"+e); if(it.saus) p.push("+"+it.saus+" sausage"+e); return p.join(". "); }
 function noPrice(){
-  var t=0; noState.items.forEach(function(it){ if(it.meat) t+=it.q*(PRICES[it.meat]||0); });
-  t+=noState.tort*(EXTRA_PRICES.tortilla||0)+noState.saus*(EXTRA_PRICES.sausage||0); return t;
+  var t=0; noState.items.forEach(function(it){ t+=noItemPrice(it); }); return t;
 }
 function noDraw(){
   $("noItems").innerHTML=noState.items.map(function(it,i){
     var sideName={rice:"Rice & Beans",tort:"Tortilla"}[it.side];
-    var line=(it.meat&&it.side)?it.q+' x '+it.meat+' with '+sideName+' \u00b7 '+money(it.q*(PRICES[it.meat]||0)):(it.meat?'Now pick a side':'Pick a meat to start');
+    var ex=[]; if(it.tort) ex.push('+'+it.tort+' tortilla'+(it.tort>1?'s':'')); if(it.saus) ex.push('+'+it.saus+' sausage'+(it.saus>1?'s':''));
+    var line=(it.meat&&it.side)?it.q+' x '+it.meat+' with '+sideName+(ex.length?', '+ex.join(', ')+(it.q>1?' on each plate':''):'')+' \u00b7 '+money(noItemPrice(it)):(it.meat?'Now pick a side':'Pick a meat to start');
     return '<div class="item-ed">'+
       '<div class="ititle"><b>Plate '+(noState.items.length>1?(i+1):'')+'</b>'+(noState.items.length>1?'<button class="irm" type="button" data-irm="'+i+'" aria-label="Remove this plate">&times;</button>':'')+'</div>'+
+      '<div class="iqrow"><span class="ilab" style="margin:0">How many</span><span class="qty"><button type="button" data-iq="'+i+'" data-d="-1" aria-label="One less">&minus;</button><b>'+it.q+'</b><button type="button" data-iq="'+i+'" data-d="1" aria-label="One more">+</button></span></div>'+
       '<div class="ilab">Meat</div><div class="segfull three">'+NO_MEATS.map(function(m){return '<button type="button" data-im="'+i+'" data-v="'+m+'" class="'+(it.meat===m?"on":"")+'">'+m+'</button>'}).join("")+'</div>'+
       '<div class="ilab">Side</div><div class="segfull two">'+NO_SIDES.map(function(sd){return '<button type="button" data-is="'+i+'" data-v="'+sd[0]+'" class="'+(it.side===sd[0]?"on":"")+'">'+(sd[0]==="tort"?"Flour Tortilla":sd[1])+'</button>'}).join("")+'</div>'+
-      '<div class="iqrow"><span class="ilab" style="margin:0">How many</span><span class="qty"><button type="button" data-iq="'+i+'" data-d="-1" aria-label="One less">&minus;</button><b>'+it.q+'</b><button type="button" data-iq="'+i+'" data-d="1" aria-label="One more">+</button></span></div>'+
+      '<div class="ilab">Extras on each plate</div>'+
+      '<div class="exrow"><span>Extra tortillas <small class="muted">$1</small></span><span class="qty sm"><button type="button" data-ie="'+i+'" data-k="tort" data-d="-1" aria-label="One less tortilla">&minus;</button><b>'+it.tort+'</b><button type="button" data-ie="'+i+'" data-k="tort" data-d="1" aria-label="One more tortilla">+</button></span></div>'+
+      '<div class="exrow"><span>Extra sausages <small class="muted">$3</small></span><span class="qty sm"><button type="button" data-ie="'+i+'" data-k="saus" data-d="-1" aria-label="One less sausage">&minus;</button><b>'+it.saus+'</b><button type="button" data-ie="'+i+'" data-k="saus" data-d="1" aria-label="One more sausage">+</button></span></div>'+
       '<div class="iline'+((it.meat&&it.side)?' done':'')+'">'+line+'</div></div>';
   }).join("");
-  $("exTort").textContent=noState.tort; $("exSaus").textContent=noState.saus;
   $("noTotal").textContent=money(noPrice());
   var plates=noState.items.reduce(function(a,it){return a+it.q},0);
-  $("noSum").textContent=plates+" plate"+(plates>1?"s":"")+(noState.tort?" · +"+noState.tort+" tortilla"+(noState.tort>1?"s":""):"")+(noState.saus?" · +"+noState.saus+" sausage"+(noState.saus>1?"s":""):"");
+  var et=noState.items.reduce(function(a,it){return a+it.q*it.tort},0), es=noState.items.reduce(function(a,it){return a+it.q*it.saus},0);
+  $("noSum").textContent=plates+" plate"+(plates>1?"s":"")+(et?" \u00b7 "+et+" extra tortilla"+(et>1?"s":""):"")+(es?" \u00b7 "+es+" extra sausage"+(es>1?"s":""):"");
 }
 function noTime12(v){ var m=String(v||"").match(/^(\d{1,2}):(\d{2})/); if(!m) return ""; var h=+m[1], ap=h>=12?"PM":"AM"; h=h%12||12; return h+":"+m[2]+" "+ap; }
 function noSave(){
@@ -1214,23 +1221,27 @@ function noSave(){
   if(!name){ err.textContent="Type the customer's name."; $("noName").focus(); return; }
   for(var i=0;i<noState.items.length;i++){ var it=noState.items[i]; if(!it.meat||!it.side){ err.textContent="Pick a meat and a side for "+(noState.items.length>1?"item "+(i+1):"the plate")+"."; return; } }
   err.textContent="";
-  var parts=[]; if(noState.tort) parts.push("+"+noState.tort+" tortilla"); if(noState.saus) parts.push("+"+noState.saus+" sausage");
-  var free=$("noNotes").value.replace(/\s+/g," ").trim(); if(free) parts.push(free);
+  var free=$("noNotes").value.replace(/\s+/g," ").trim(), time=noTime12($("noTime").value);
   var pin=lsGet("lmPin",""), asked=false;
   if(!pin){ pin=prompt("Family PIN to save orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
   var btn=$("noSave"); btn.disabled=true; btn.textContent="Saving...";
-  var items=noState.items.map(function(it){return {q:it.q,meat:it.meat,side:it.side}});
-  var q="action=add&name="+encodeURIComponent(name)+"&items="+encodeURIComponent(JSON.stringify(items))+"&notes="+encodeURIComponent(parts.join(". "))+
-        "&time="+encodeURIComponent(noTime12($("noTime").value))+"&pin="+encodeURIComponent(pin);
-  jsonp(WRITE_URL+"?"+q).then(function(r){
-    btn.disabled=false; btn.textContent="Save order";
-    if(r&&r.ok){ if(asked) lsSet("lmPin",pin); toast("Saved: "+name+" · "+money(noPrice())); noState=null; noClose(); setTimeout(load,2500); return; }
-    var e=r&&r.error;
-    if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} err.textContent="Wrong PIN. Try again."; }
-    else if(e==="bad_action"||e==="bad_field") err.textContent="The Google script needs updating before orders can be added (Deploy > New version).";
-    else err.textContent="Couldn't save: "+(e||"unknown problem")+".";
-  }).catch(function(){ btn.disabled=false; btn.textContent="Save order"; err.textContent="Couldn't reach the sheet. Check the internet and try again."; });
+  var total=noPrice(), list=noState.items.slice(), saved=0;
+  function fail(msg){ btn.disabled=false; btn.textContent="Save order"; err.textContent=msg+(saved?" ("+saved+" of "+list.length+" plates were saved. Check the sheet before trying again.)":""); if(saved){ setTimeout(load,1500); } }
+  function step(i){
+    if(i>=list.length){ if(asked) lsSet("lmPin",pin); toast("Saved: "+name+" \u00b7 "+money(total)); noState=null; btn.disabled=false; btn.textContent="Save order"; noClose(); setTimeout(load,2500); return; }
+    var it=list[i], note=[noItemNote(it), i===0?free:""].filter(Boolean).join(". ");
+    var q="action=add&name="+encodeURIComponent(name)+"&items="+encodeURIComponent(JSON.stringify([{q:it.q,meat:it.meat,side:it.side}]))+"&notes="+encodeURIComponent(note)+"&time="+encodeURIComponent(time)+"&pin="+encodeURIComponent(pin);
+    jsonp(WRITE_URL+"?"+q).then(function(r){
+      if(r&&r.ok){ saved++; if(asked&&saved===1) lsSet("lmPin",pin); return step(i+1); }
+      var e=r&&r.error;
+      if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} fail("Wrong PIN. Try again."); }
+      else if(e==="bad_action"||e==="bad_field") fail("The Google script needs updating before orders can be added (Deploy > New version).");
+      else fail("Couldn't save: "+(e||"unknown problem")+".");
+    }).catch(function(){ fail("Couldn't reach the sheet. Check the internet and try again."); });
+  }
+  step(0);
 }
+
 document.addEventListener("click",function(e){
   var t=e.target;
   if(t.closest("[data-neworder]")){ e.preventDefault(); noOpen(); return; }
@@ -1241,8 +1252,8 @@ document.addEventListener("click",function(e){
   if((b=t.closest("[data-im]"))){ noState.items[+b.getAttribute("data-im")].meat=b.getAttribute("data-v"); noDraw(); return; }
   if((b=t.closest("[data-is]"))){ noState.items[+b.getAttribute("data-is")].side=b.getAttribute("data-v"); noDraw(); return; }
   if((b=t.closest("[data-irm]"))){ noState.items.splice(+b.getAttribute("data-irm"),1); noDraw(); return; }
-  if((b=t.closest("[data-ex]"))){ var k=b.getAttribute("data-ex"); noState[k]=Math.max(0,Math.min(50,noState[k]+(+b.getAttribute("data-d")))); noDraw(); return; }
-  if(t.id==="noAddItem"){ noState.items.push({q:1,meat:null,side:null}); noDraw(); return; }
+  if((b=t.closest("[data-ie]"))){ var it2=noState.items[+b.getAttribute("data-ie")], k=b.getAttribute("data-k"); it2[k]=Math.max(0,Math.min(10,it2[k]+(+b.getAttribute("data-d")))); noDraw(); return; }
+  if(t.id==="noAddItem"){ noState.items.push({q:1,meat:null,side:null,tort:0,saus:0}); noDraw(); return; }
   if(t.id==="noSave"){ noSave(); return; }
 });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("orderModal").hidden) noClose(); });
@@ -1537,11 +1548,6 @@ load(); state.timer=setInterval(tick,1000);
     <div class="fl">What are they ordering?</div>
     <div id="noItems"></div>
     <button class="addline" type="button" id="noAddItem">+ Add a different plate</button>
-    <div class="fl">Extras (for the whole order)</div>
-    <div class="steps">
-      <div class="steprow"><span>Extra tortillas <small class="muted">$1 each</small></span><span class="qty"><button type="button" data-ex="tort" data-d="-1">&minus;</button><b id="exTort">0</b><button type="button" data-ex="tort" data-d="1">+</button></span></div>
-      <div class="steprow"><span>Extra sausages <small class="muted">$3 each</small></span><span class="qty"><button type="button" data-ex="saus" data-d="-1">&minus;</button><b id="exSaus">0</b><button type="button" data-ex="saus" data-d="1">+</button></span></div>
-    </div>
     <div class="fl">Needed by <span class="muted" style="font-weight:400">(optional)</span></div>
     <input class="finput" type="time" id="noTime">
     <div class="fl">Notes</div>
