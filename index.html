@@ -398,6 +398,56 @@ details.ccard[open] > summary { margin-bottom:10px; }
   .lrow { gap:10px; padding:11px 0; } .lrow > b { font-size:17px; }
   .top .sub { display:none; }
 }
+
+/* ---------- New order ---------- */
+.newbtn[hidden] { display:none !important; }
+.newbtn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; border:0; border-radius:14px; padding:13px 16px; margin:0 0 12px;
+          background:var(--accent); color:#fff; font:inherit; font-size:15px; font-weight:600; cursor:pointer; }
+.newbtn:hover { filter:brightness(1.08); }
+.newbtn svg { width:18px; height:18px; }
+.newbtn.inline { width:auto; margin:0; padding:10px 16px; flex:0 0 auto; }
+.modal { position:fixed; inset:0; z-index:300; background:rgba(10,15,25,.45); display:flex; align-items:center; justify-content:center; padding:16px; }
+.modal[hidden] { display:none; }
+.msheet { background:var(--panel); color:var(--ink); width:100%; max-width:540px; max-height:92vh; overflow:auto; border-radius:20px; padding:18px 18px 20px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+.mhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.mhead h3 { margin:0; font-size:18px; }
+.mclose { width:34px; height:34px; border-radius:50%; border:0; background:var(--panel2); color:var(--ink); font-size:20px; cursor:pointer; }
+.fl { font-size:12.5px; color:var(--muted); font-weight:600; margin:14px 0 6px; }
+.finput { width:100%; font:inherit; font-size:16px; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+.finput:focus { outline:none; border-color:var(--accent); }
+textarea.finput { resize:vertical; min-height:44px; }
+.item-ed { background:var(--bg); border-radius:16px; padding:12px; margin-bottom:10px; }
+.ititle { display:flex; justify-content:space-between; align-items:center; margin-bottom:2px; font-size:14.5px; }
+.ilab { font-size:12px; color:var(--muted); margin:8px 0 5px; }
+.segfull { display:grid; gap:6px; } .segfull.three { grid-template-columns:repeat(3,minmax(0,1fr)); } .segfull.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.segfull button { border:1px solid var(--line); background:var(--panel); color:var(--ink); font:inherit; font-size:14px; border-radius:12px; padding:12px 6px; cursor:pointer; line-height:1.2; }
+.segfull button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.iqrow { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+.iline { margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:13px; color:var(--muted); }
+.iline.done { color:var(--ink); font-weight:600; }
+.item-ed .irow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:4px 0; }
+.item-ed .irm { position:static; width:28px; height:28px; border-radius:50%; border:0; background:transparent; color:var(--muted); font-size:18px; cursor:pointer; }
+.qty { display:inline-flex; align-items:center; background:var(--panel); border-radius:12px; border:1px solid var(--line); }
+.qty button { width:38px; height:38px; border:0; background:transparent; font-size:20px; color:var(--accent); cursor:pointer; }
+.qty b { min-width:28px; text-align:center; font-size:16px; }
+.seg { display:inline-flex; flex-wrap:wrap; gap:6px; }
+.seg button { border:1px solid var(--line); background:var(--panel); color:var(--ink); font:inherit; font-size:13.5px; border-radius:18px; padding:8px 12px; cursor:pointer; }
+.seg button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.addline { border:0; background:transparent; color:var(--accent); font:inherit; font-weight:600; padding:4px 2px; cursor:pointer; }
+.steps { display:grid; gap:8px; }
+.steprow { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:12px; padding:6px 6px 6px 12px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.ntotal { display:flex; justify-content:space-between; align-items:baseline; margin:16px 2px 4px; font-size:15px; }
+.ntotal b { font-size:24px; color:var(--up); }
+.nsum { color:var(--muted); font-size:12.5px; margin:0 2px 12px; }
+.nerr { color:var(--down); font-size:13px; font-weight:600; min-height:18px; margin-bottom:6px; }
+.nsave { width:100%; border:0; border-radius:14px; padding:14px; background:var(--up); color:#fff; font:inherit; font-size:16px; font-weight:700; cursor:pointer; }
+.nsave:disabled { opacity:.6; cursor:wait; }
+@media (max-width: 720px) {
+  .modal { align-items:flex-end; padding:0; }
+  .msheet { max-width:none; border-radius:20px 20px 0 0; max-height:94vh; padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+  .grid2 { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -435,6 +485,7 @@ details.ccard[open] > summary { margin-bottom:10px; }
     <!-- DASHBOARD -->
     <section class="view" id="view-dashboard">
       <div class="countline" id="countLine">Loading orders...</div>
+      <button class="newbtn" type="button" data-neworder hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New order</button>
       <div id="alert"></div>
       <div class="calmtop">
         <div class="ccard tint-blue big" id="salesCard"></div>
@@ -458,6 +509,7 @@ details.ccard[open] > summary { margin-bottom:10px; }
     <section class="view" id="view-orders" hidden>
       <div class="panel">
         <div class="filters">
+          <button class="newbtn inline" type="button" data-neworder hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New order</button>
           <div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div>
           <div class="chiprow"><div class="chips" id="meatChips"></div><div class="chips" id="sideChips"></div><div class="chips" id="flagChips"></div></div>
           <button class="clearall" id="clearFilt" type="button" hidden>Clear all filters</button>
@@ -818,12 +870,13 @@ function getRows(link){
 
 /* ---------- columns ---------- */
 function findCols(header){
-  var h=header.map(norm), cols={name:-1,meat:-1,side:-1,qty:-1,notes:-1,time:-1,seller:-1,date:-1,deliv:-1,pack:-1};
+  var h=header.map(norm), cols={name:-1,meat:-1,side:-1,qty:-1,notes:-1,time:-1,seller:-1,date:-1,deliv:-1,pack:-1,loc:-1};
   function taken(i){ return Object.keys(cols).some(function(r){return cols[r]===i}); }
   function pick(role,re){ if(cols[role]>=0) return; for(var i=0;i<h.length;i++){ if(taken(i)) continue; if(re.test(h[i])){cols[role]=i;return} } }
   pick("notes",/note|nota|comment|coment|special|request|instruc/);
   pick("qty",/qty|quant|cantidad|how many|cuant|# ?of|number of|^#$|^plates$|^no\.? of/);
   pick("seller",/sold|seller|vend|sales ?person/);
+  pick("loc",/location|^area|zona|lugar|address|direccion/);
   pick("pack",/^packag|^packed|^pack\b|^empac|^boxed/);
   pick("deliv",/^deliver|delivered|entregad|^done|^sent|^status/);
   pick("date",/^date|order date|timestamp|fecha|date ordered|marca temporal/);
@@ -851,7 +904,7 @@ function crunch(rows){
     var note=get(cols.notes);
     var pm=note.match(/\$\s*(\d+(?:\.\d{1,2})?)/), priceNote=pm?+pm[1]:null;
     var noteRead=note.replace(/\$\s*\d+(?:\.\d{1,2})?/g," ");
-    var others=row.filter(function(c,i){return i!==cols.notes&&i!==cols.name&&i!==cols.qty&&i!==cols.time&&i!==cols.seller&&i!==cols.date&&i!==cols.deliv&&i!==cols.pack}).join(" ");
+    var others=row.filter(function(c,i){return i!==cols.notes&&i!==cols.name&&i!==cols.qty&&i!==cols.time&&i!==cols.seller&&i!==cols.date&&i!==cols.deliv&&i!==cols.pack&&i!==cols.loc}).join(" ");
     var meatTxt=cols.meat>=0?get(cols.meat):others, sideTxt=cols.side>=0?get(cols.side):others;
     var qInfo=cols.qty>=0?parseQty(get(cols.qty)):{q:1}, q=qInfo.q;
     if(cols.qty>=0&&!get(cols.qty)) qInfo={q:1,why:"Qty is empty, counted as 1 (if a word like \"two\" was typed, change it to a number)"};
@@ -867,7 +920,7 @@ function crunch(rows){
     om.forEach(function(x){issues.push(x)});
     var seller=get(cols.seller);
     out.list.push({row:hi+ri+2,name:name,q:q,meat:m.meat,meatTxt:meatTxt,side:sd.side,sideTxt:sideTxt,note:note,
-      extra:n.extra,sx:sx.extra,xp:px.extra,xc:cx.extra,priceNote:priceNote,delivered:/^(true|yes|y|si|x|done|delivered|1|\u2713|\u2714)$/i.test(get(cols.deliv)),packaged:/^(true|yes|y|si|x|done|packed|packaged|1|\u2713|\u2714)$/i.test(get(cols.pack)),date:get(cols.date),time:cleanTime(get(cols.time)),seller:seller?titleCase(seller):"",flag:issues.join("; ")});
+      extra:n.extra,sx:sx.extra,xp:px.extra,xc:cx.extra,priceNote:priceNote,loc:get(cols.loc),delivered:/^(true|yes|y|si|x|done|delivered|1|\u2713|\u2714)$/i.test(get(cols.deliv)),packaged:/^(true|yes|y|si|x|done|packed|packaged|1|\u2713|\u2714)$/i.test(get(cols.pack)),date:get(cols.date),time:cleanTime(get(cols.time)),seller:seller?titleCase(seller):"",flag:issues.join("; ")});
   });
   return out;
 }
@@ -1104,6 +1157,7 @@ function groupOrders(L){
     var times=R.map(function(o){return o.time}).filter(Boolean).sort(function(a,b){return timeKey(a)-timeKey(b)});
     g.time=times[0]||"";
     g.rowList=R.map(function(o){return o.row});
+    g.loc=(R.filter(function(o){return o.loc})[0]||{}).loc||"";
     g.unpriced=R.reduce(function(a,o){return a+orderPrice(o).unpriced},0);
     g.fixed=R.some(function(o){return o.priceNote!=null});
   });
@@ -1118,6 +1172,80 @@ function itemsHtml(g){
 }
 function priceCell(g){ return '<td class="n price"><b>'+money(g.price)+'</b>'+(g.unpriced?'<br><small class="muted">+'+g.unpriced+' extra'+(g.unpriced>1?'s':'')+' not priced</small>':'')+'</td>'; }
 function rowsTxt(g){ return g.rowList.map(function(r){return "#"+r}).join(", "); }
+
+
+/* ---------- New order form (adds rows to the sheet through the script) ---------- */
+var noState=null;
+var NO_MEATS=["Chicken","Pork","Italian Sausage"], NO_SIDES=[["rice","Rice & Beans"],["tort","Tortilla"]];
+function noReset(){ noState={items:[{q:1,meat:null,side:null}],tort:0,saus:0}; ["noName","noTime","noNotes"].forEach(function(i){$(i).value=""}); $("noErr").textContent=""; }
+function noOpen(){
+  if(!WRITE_URL){ toast("Adding orders isn't switched on yet.",true); return; }
+  if(!noState) noReset();
+  var names={};
+  if(data) data.list.forEach(function(o){ names[o.name.replace(/\s+/g," ").trim()]=1; });
+  $("noNames").innerHTML=Object.keys(names).sort().map(function(n){return '<option value="'+esc(n)+'">'}).join("");
+  noDraw(); $("orderModal").hidden=false; document.body.style.overflow="hidden";
+  setTimeout(function(){ $("noName").focus(); },50);
+}
+function noClose(){ $("orderModal").hidden=true; document.body.style.overflow=""; }
+function noPrice(){
+  var t=0; noState.items.forEach(function(it){ if(it.meat) t+=it.q*(PRICES[it.meat]||0); });
+  t+=noState.tort*(EXTRA_PRICES.tortilla||0)+noState.saus*(EXTRA_PRICES.sausage||0); return t;
+}
+function noDraw(){
+  $("noItems").innerHTML=noState.items.map(function(it,i){
+    var sideName={rice:"Rice & Beans",tort:"Tortilla"}[it.side];
+    var line=(it.meat&&it.side)?it.q+' x '+it.meat+' with '+sideName+' \u00b7 '+money(it.q*(PRICES[it.meat]||0)):(it.meat?'Now pick a side':'Pick a meat to start');
+    return '<div class="item-ed">'+
+      '<div class="ititle"><b>Plate '+(noState.items.length>1?(i+1):'')+'</b>'+(noState.items.length>1?'<button class="irm" type="button" data-irm="'+i+'" aria-label="Remove this plate">&times;</button>':'')+'</div>'+
+      '<div class="ilab">Meat</div><div class="segfull three">'+NO_MEATS.map(function(m){return '<button type="button" data-im="'+i+'" data-v="'+m+'" class="'+(it.meat===m?"on":"")+'">'+m+'</button>'}).join("")+'</div>'+
+      '<div class="ilab">Side</div><div class="segfull two">'+NO_SIDES.map(function(sd){return '<button type="button" data-is="'+i+'" data-v="'+sd[0]+'" class="'+(it.side===sd[0]?"on":"")+'">'+(sd[0]==="tort"?"Flour Tortilla":sd[1])+'</button>'}).join("")+'</div>'+
+      '<div class="iqrow"><span class="ilab" style="margin:0">How many</span><span class="qty"><button type="button" data-iq="'+i+'" data-d="-1" aria-label="One less">&minus;</button><b>'+it.q+'</b><button type="button" data-iq="'+i+'" data-d="1" aria-label="One more">+</button></span></div>'+
+      '<div class="iline'+((it.meat&&it.side)?' done':'')+'">'+line+'</div></div>';
+  }).join("");
+  $("exTort").textContent=noState.tort; $("exSaus").textContent=noState.saus;
+  $("noTotal").textContent=money(noPrice());
+  var plates=noState.items.reduce(function(a,it){return a+it.q},0);
+  $("noSum").textContent=plates+" plate"+(plates>1?"s":"")+(noState.tort?" · +"+noState.tort+" tortilla"+(noState.tort>1?"s":""):"")+(noState.saus?" · +"+noState.saus+" sausage"+(noState.saus>1?"s":""):"");
+}
+function noTime12(v){ var m=String(v||"").match(/^(\d{1,2}):(\d{2})/); if(!m) return ""; var h=+m[1], ap=h>=12?"PM":"AM"; h=h%12||12; return h+":"+m[2]+" "+ap; }
+function noSave(){
+  var name=$("noName").value.replace(/\s+/g," ").trim(), err=$("noErr");
+  if(!name){ err.textContent="Type the customer's name."; $("noName").focus(); return; }
+  for(var i=0;i<noState.items.length;i++){ var it=noState.items[i]; if(!it.meat||!it.side){ err.textContent="Pick a meat and a side for "+(noState.items.length>1?"item "+(i+1):"the plate")+"."; return; } }
+  err.textContent="";
+  var parts=[]; if(noState.tort) parts.push("+"+noState.tort+" tortilla"); if(noState.saus) parts.push("+"+noState.saus+" sausage");
+  var free=$("noNotes").value.replace(/\s+/g," ").trim(); if(free) parts.push(free);
+  var pin=lsGet("lmPin",""), asked=false;
+  if(!pin){ pin=prompt("Family PIN to save orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
+  var btn=$("noSave"); btn.disabled=true; btn.textContent="Saving...";
+  var items=noState.items.map(function(it){return {q:it.q,meat:it.meat,side:it.side}});
+  var q="action=add&name="+encodeURIComponent(name)+"&items="+encodeURIComponent(JSON.stringify(items))+"&notes="+encodeURIComponent(parts.join(". "))+
+        "&time="+encodeURIComponent(noTime12($("noTime").value))+"&pin="+encodeURIComponent(pin);
+  jsonp(WRITE_URL+"?"+q).then(function(r){
+    btn.disabled=false; btn.textContent="Save order";
+    if(r&&r.ok){ if(asked) lsSet("lmPin",pin); toast("Saved: "+name+" · "+money(noPrice())); noState=null; noClose(); setTimeout(load,2500); return; }
+    var e=r&&r.error;
+    if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} err.textContent="Wrong PIN. Try again."; }
+    else if(e==="bad_action"||e==="bad_field") err.textContent="The Google script needs updating before orders can be added (Deploy > New version).";
+    else err.textContent="Couldn't save: "+(e||"unknown problem")+".";
+  }).catch(function(){ btn.disabled=false; btn.textContent="Save order"; err.textContent="Couldn't reach the sheet. Check the internet and try again."; });
+}
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(t.closest("[data-neworder]")){ e.preventDefault(); noOpen(); return; }
+  if(!t.closest("#orderModal")) return;
+  if(t.id==="orderModal"||t.closest("[data-noclose]")){ noClose(); return; }
+  var b;
+  if((b=t.closest("[data-iq]"))){ var it=noState.items[+b.getAttribute("data-iq")]; it.q=Math.max(1,Math.min(50,it.q+(+b.getAttribute("data-d")))); noDraw(); return; }
+  if((b=t.closest("[data-im]"))){ noState.items[+b.getAttribute("data-im")].meat=b.getAttribute("data-v"); noDraw(); return; }
+  if((b=t.closest("[data-is]"))){ noState.items[+b.getAttribute("data-is")].side=b.getAttribute("data-v"); noDraw(); return; }
+  if((b=t.closest("[data-irm]"))){ noState.items.splice(+b.getAttribute("data-irm"),1); noDraw(); return; }
+  if((b=t.closest("[data-ex]"))){ var k=b.getAttribute("data-ex"); noState[k]=Math.max(0,Math.min(50,noState[k]+(+b.getAttribute("data-d")))); noDraw(); return; }
+  if(t.id==="noAddItem"){ noState.items.push({q:1,meat:null,side:null}); noDraw(); return; }
+  if(t.id==="noSave"){ noSave(); return; }
+});
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("orderModal").hidden) noClose(); });
 
 /* ---------- Packaged / Delivered buttons (write to the sheet) ---------- */
 var pendingW={}, wN=0;
@@ -1212,15 +1340,15 @@ function renderDeliv(L){
   $("delivLegend").innerHTML='<span><i style="background:var(--up)"></i>Delivered <b>'+pl(done)+'</b></span><span><i style="background:var(--accent)"></i>Packaged, waiting <b>'+pl(ready)+'</b></span><span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To package <b>'+pl(pend)+'</b></span>';
   $("delivPct").textContent=Math.round(pl(done)/P*100)+"% of plates delivered · "+Math.round((pl(done)+pl(ready))/P*100)+"% packaged";
   $("delivChips").innerHTML=["All","Has a time","Late"].map(function(c){return '<button data-df="'+c+'" class="'+(delivFilt===c?"on":"")+'">'+c+(c==="Late"&&late.length?" ("+late.length+")":"")+'</button>'}).join("");
-  var sq=norm(filt.q||""), hit=function(g){ return !sq||norm(g.name+" "+g.notes.join(" ")).indexOf(sq)>=0; };
+  var sq=norm(filt.q||""), hit=function(g){ return !sq||norm(g.name+" "+g.notes.join(" ")+" "+g.loc).indexOf(sq)>=0; };
   if(sq){ var nHit=G.filter(hit).length; $("delivFound").innerHTML='<div class="findnote">'+(nHit?nHit+' order'+(nHit>1?'s':'')+' match "'+esc(filt.q)+'"':'No orders match "'+esc(filt.q)+'"')+'</div>'; if(done.some(hit)) $("doneBox").open=true; } else $("delivFound").innerHTML="";
   var order=function(a){ var r=a.filter(hit).slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); });
     if(delivFilt==="Has a time") r=r.filter(function(g){return g._due}); if(delivFilt==="Late") r=r.filter(function(g){return g._late}); return r; };
   var part=function(g){ var n=g.rows.length; if(n<2) return "";
     if(!g.delivered&&g.delivN) return ' <span class="tag">partly delivered '+g.delivN+' of '+n+'</span>';
     if(!g.packaged&&g.packedN) return ' <span class="tag">partly packaged '+g.packedN+' of '+n+'</span>'; return ""; };
-  var row=function(g){ return '<tr class="'+(g._late?"flag":"")+'"><td><b>'+esc(g.time||"")+'</b>'+(g._late?' <span class="tag r">late</span>':'')+part(g)+'</td><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(g)+'</td>':'')+'</tr>'; };
-  var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
+  var row=function(g){ return '<tr class="'+(g._late?"flag":"")+'"><td><b>'+esc(g.time||"")+'</b>'+(g._late?' <span class="tag r">late</span>':'')+part(g)+'</td><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td>'+(data.cols.loc>=0?'<td>'+esc(g.loc)+'</td>':'')+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(g)+'</td>':'')+'</tr>'; };
+  var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th>'+(data.cols.loc>=0?'<th>Location</th>':'')+'<th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
   var table=function(a,empty){ var r=order(a); return r.length?'<table>'+head+'<tbody>'+r.map(row).join("")+'</tbody></table>':'<p class="'+(a.length?"muted":"ok")+'" style="margin:4px 0">'+(a.length?"Nothing in this filter.":empty)+'</p>'; };
   var cnt=function(a){ var n=a.filter(hit).length; return sq?n+" of "+a.length:a.length; };
   $("readyTitle").textContent="Packaged, waiting to go out ("+cnt(ready)+")";
@@ -1380,7 +1508,7 @@ $("refreshBtn").onclick=function(){ load(); };
   var sx=0, sy=0, st=0, ok=false;
   document.addEventListener("touchstart",function(e){
     if(e.touches.length!==1){ ok=false; return; }
-    var t=e.target; ok=!(t.closest&&t.closest(".chips,.keepwrap,canvas,input,select,textarea,.nav"));
+    var t=e.target; ok=!(t.closest&&t.closest(".chips,.keepwrap,canvas,input,select,textarea,.nav,.modal"));
     sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now();
   },{passive:true});
   document.addEventListener("touchend",function(e){
@@ -1396,8 +1524,34 @@ function setTheme(dark){ document.body.classList.toggle("dark",dark); $("themeBt
 $("themeBtn").onclick=function(){ setTheme(!document.body.classList.contains("dark")); if(data) renderAll(); };
 (function(){ var th=null; try{th=localStorage.getItem("lmTheme")}catch(e){} setTheme(th==="dark"); })();
 
+if(WRITE_URL) document.querySelectorAll("[data-neworder]").forEach(function(b){b.hidden=false});
 load(); state.timer=setInterval(tick,1000);
 </script>
+
+<div class="modal" id="orderModal" hidden>
+  <div class="msheet" role="dialog" aria-modal="true" aria-label="New order">
+    <div class="mhead"><h3>New order</h3><button class="mclose" type="button" data-noclose aria-label="Close">&times;</button></div>
+    <div class="fl">Customer name</div>
+    <input class="finput" id="noName" list="noNames" autocomplete="off" placeholder="e.g. Maria Canto">
+    <datalist id="noNames"></datalist>
+    <div class="fl">What are they ordering?</div>
+    <div id="noItems"></div>
+    <button class="addline" type="button" id="noAddItem">+ Add a different plate</button>
+    <div class="fl">Extras (for the whole order)</div>
+    <div class="steps">
+      <div class="steprow"><span>Extra tortillas <small class="muted">$1 each</small></span><span class="qty"><button type="button" data-ex="tort" data-d="-1">&minus;</button><b id="exTort">0</b><button type="button" data-ex="tort" data-d="1">+</button></span></div>
+      <div class="steprow"><span>Extra sausages <small class="muted">$3 each</small></span><span class="qty"><button type="button" data-ex="saus" data-d="-1">&minus;</button><b id="exSaus">0</b><button type="button" data-ex="saus" data-d="1">+</button></span></div>
+    </div>
+    <div class="fl">Needed by <span class="muted" style="font-weight:400">(optional)</span></div>
+    <input class="finput" type="time" id="noTime">
+    <div class="fl">Notes</div>
+    <textarea class="finput" id="noNotes" rows="2" placeholder="e.g. tortillas separate in foil"></textarea>
+    <div class="ntotal"><span>Total</span><b id="noTotal">$0</b></div>
+    <div class="nsum" id="noSum"></div>
+    <div class="nerr" id="noErr"></div>
+    <button class="nsave" type="button" id="noSave">Save order</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 </body>
 </html>
