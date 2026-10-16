@@ -996,7 +996,7 @@ function actBtns(o){
   if(o.packaged) return a("delivered","true","dl","Delivered")+a("packaged","false","undo","Undo packaged");
   return a("packaged","true","pk","Packaged")+a("delivered","true","dl","Delivered");
 }
-function toast(msg,bad){ var t=$("toast"); t.textContent=msg; t.className="toast show"+(bad?" bad":""); clearTimeout(toast._t); toast._t=setTimeout(function(){t.className="toast"+(bad?" bad":"")},3200); }
+function toast(msg,bad){ var t=$("toast"); t.textContent=msg; t.className="toast show"+(bad?" bad":""); clearTimeout(toast._t); toast._t=setTimeout(function(){t.className="toast"+(bad?" bad":"")},bad?7000:3200); }
 function jsonp(url){
   return new Promise(function(resolve,reject){
     var name="__wCb"+(++wN), tag=document.createElement("script"), done=false;
@@ -1021,7 +1021,8 @@ function doWrite(btn){
   var pin=lsGet("lmPin",""); var asked=false;
   if(!pin){ pin=prompt("Family PIN to update orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
   var label=btn.textContent; btn.disabled=true; btn.textContent="Saving...";
-  var q="field="+field+"&value="+val+"&row="+row+"&name="+encodeURIComponent(name)+"&pin="+encodeURIComponent(pin);
+  var ci=data.cols[field==="delivered"?"deliv":"pack"];
+  var q="field="+field+"&value="+val+"&row="+row+"&col="+(ci>=0?ci+1:"")+"&name="+encodeURIComponent(name)+"&pin="+encodeURIComponent(pin);
   jsonp(WRITE_URL+"?"+q).then(function(r){
     if(r&&r.ok){
       if(asked) lsSet("lmPin",pin);
@@ -1036,7 +1037,8 @@ function doWrite(btn){
     var e=r&&r.error;
     if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} toast("Wrong PIN. Try again.",true); }
     else if(e==="name_mismatch"){ toast("That row changed in the sheet. Refreshing...",true); load(); }
-    else if(e==="no_column"){ toast("The sheet has no "+(field==="delivered"?"Delivered?":"Packaged?")+" column.",true); }
+    else if(e==="no_column"){ toast("The script couldn't find the "+(field==="delivered"?"Delivered?":"Packaged?")+" column. It sees: "+((r.headers||[]).join(" | ")||"no headers"),true); }
+    else if(e==="not_checkbox"){ toast("That cell isn't a checkbox (it has \""+(r.found||"")+"\"), so nothing was changed.",true); }
     else toast("Couldn't save: "+(e||"unknown problem"),true);
   }).catch(function(){ btn.disabled=false; btn.textContent=label; toast("Couldn't reach the sheet. Check the internet and try again.",true); });
 }
