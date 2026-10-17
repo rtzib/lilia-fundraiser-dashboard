@@ -434,6 +434,14 @@ textarea.finput { resize:vertical; min-height:44px; }
 .segfull button { border:1px solid var(--line); background:var(--panel); color:var(--ink); font:inherit; font-size:14px; border-radius:12px; padding:12px 6px; cursor:pointer; line-height:1.2; }
 .segfull button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
 .iqrow { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+.ikeep { margin-top:8px; font-size:12.5px; color:var(--muted); background:var(--panel); border-radius:10px; padding:6px 9px; }
+.actbtn.editbtn { padding:8px 18px; }
+.actbtn.delbtn { background:transparent; border-color:transparent; color:var(--down); font-size:12px; font-weight:500; padding:6px 8px; }
+.actbtn.delbtn:hover { background:var(--t-pink); }
+@media (max-width: 720px) {
+  table.cards td.act .actbtn.editbtn { flex:1 1 auto; }
+  table.cards td.act .actbtn.delbtn { flex:0 0 auto; padding:11px 10px; font-size:13px; }
+}
 .exrow { display:flex; align-items:center; justify-content:space-between; padding:3px 0; font-size:14px; }
 .qty.sm button { width:34px; height:34px; font-size:18px; } .qty.sm b { min-width:24px; font-size:15px; }
 .iline { margin-top:10px; padding-top:8px; border-top:1px dashed var(--line); font-size:13px; color:var(--muted); }
@@ -1190,10 +1198,28 @@ function rowsTxt(g){ return g.rowList.map(function(r){return "#"+r}).join(", ");
 /* ---------- New order form (adds rows to the sheet through the script) ---------- */
 var noState=null;
 var NO_MEATS=["Chicken","Pork","Italian Sausage"], NO_SIDES=[["rice","Rice & Beans"],["tort","Tortilla"]];
-function noReset(){ noState={items:[{q:1,meat:null,side:null,tort:0,saus:0}]}; ["noName","noTime","noNotes"].forEach(function(i){$(i).value=""}); $("noErr").textContent=""; }
-function noOpen(){
+function noReset(){ noState={items:[{q:1,meat:null,side:null,tort:0,saus:0}],edit:null}; ["noName","noTime","noNotes"].forEach(function(i){$(i).value=""}); $("noErr").textContent=""; }
+function askPin(what){ var p=prompt("Enter the family PIN to "+what+":"); return p?p.trim():""; }
+function to24(t){ var m=String(t||"").match(/^(\d{1,2}):(\d{2})\s*([AP])M$/i); if(!m) return ""; var h=+m[1]%12+(/p/i.test(m[3])?12:0); return (h<10?"0":"")+h+":"+m[2]; }
+// keep the parts of a note that aren't tortilla/sausage amounts (those come back as the per-plate steppers)
+function noKeepNote(note){ return String(note||"").split(/[.;,\/]/).map(function(x){return x.trim()}).filter(function(x){ return x && !(/(tortilla|sausage|italian)/i.test(x) && /(\d|extra|\+|one|two|three)/i.test(x)); }).join(". "); }
+function editOpen(key){
+  if(!WRITE_URL||!data) return;
+  var g=groupOrders(data.list).filter(function(x){return x.key===key})[0]; if(!g) return;
+  noReset();
+  noState.edit={key:key, name:g.name, rows:g.rows.map(function(o){return {row:o.row,name:o.name}})};
+  noState.items=g.rows.map(function(o){
+    var even=o.q>0 && o.extra%o.q===0 && o.sx%o.q===0 && !o.xp && !o.xc && o.priceNote==null && !o.flag;
+    return { q:o.q, meat:o.meat, side:o.side, tort:even?o.extra/o.q:0, saus:even?o.sx/o.q:0, keep:even?noKeepNote(o.note):o.note };
+  });
+  $("noName").value=g.name; $("noTime").value=to24(g.time);
+  noOpen(true);
+}
+function noOpen(isEdit){
   if(!WRITE_URL){ toast("Adding orders isn't switched on yet.",true); return; }
-  if(!noState) noReset();
+  if(!noState||(noState.edit&&!isEdit)) noReset();
+  $("noTitle").textContent=noState.edit?"Edit order":"New order";
+  $("noSave").textContent=noState.edit?"Save changes":"Save order";
   var names={};
   if(data) data.list.forEach(function(o){ names[o.name.replace(/\s+/g," ").trim()]=1; });
   $("noNames").innerHTML=Object.keys(names).sort().map(function(n){return '<option value="'+esc(n)+'">'}).join("");
@@ -1201,7 +1227,9 @@ function noOpen(){
   setTimeout(function(){ $("noName").focus(); },50);
 }
 function noClose(){ $("orderModal").hidden=true; document.body.style.overflow=""; }
-function noItemPrice(it){ return it.meat? it.q*((PRICES[it.meat]||0)+it.tort*(EXTRA_PRICES.tortilla||0)+it.saus*(EXTRA_PRICES.sausage||0)) : 0; }
+function noItemPrice(it){
+  var set=String(it.keep||"").match(/\$\s*(\d+(?:\.\d{1,2})?)/); if(set) return +set[1];   // a "$18" kept in the note is that row's price
+  return it.meat? it.q*((PRICES[it.meat]||0)+it.tort*(EXTRA_PRICES.tortilla||0)+it.saus*(EXTRA_PRICES.sausage||0)) : 0; }
 function noItemNote(it){ var p=[], e=it.q>1?" each":""; if(it.tort) p.push("+"+it.tort+" tortilla"+e); if(it.saus) p.push("+"+it.saus+" sausage"+e); return p.join(". "); }
 function noPrice(){
   var t=0; noState.items.forEach(function(it){ t+=noItemPrice(it); }); return t;
@@ -1219,6 +1247,7 @@ function noDraw(){
       '<div class="ilab">Extras on each plate</div>'+
       '<div class="exrow"><span>Extra tortillas <small class="muted">$1</small></span><span class="qty sm"><button type="button" data-ie="'+i+'" data-k="tort" data-d="-1" aria-label="One less tortilla">&minus;</button><b>'+it.tort+'</b><button type="button" data-ie="'+i+'" data-k="tort" data-d="1" aria-label="One more tortilla">+</button></span></div>'+
       '<div class="exrow"><span>Extra sausages <small class="muted">$3</small></span><span class="qty sm"><button type="button" data-ie="'+i+'" data-k="saus" data-d="-1" aria-label="One less sausage">&minus;</button><b>'+it.saus+'</b><button type="button" data-ie="'+i+'" data-k="saus" data-d="1" aria-label="One more sausage">+</button></span></div>'+
+      (it.keep?'<div class="ikeep">Note kept on this row: '+esc(it.keep)+'</div>':'')+
       '<div class="iline'+((it.meat&&it.side)?' done':'')+'">'+line+'</div></div>';
   }).join("");
   $("noTotal").textContent=money(noPrice());
@@ -1233,6 +1262,7 @@ function noSave(){
   for(var i=0;i<noState.items.length;i++){ var it=noState.items[i]; if(!it.meat||!it.side){ err.textContent="Pick a meat and a side for "+(noState.items.length>1?"item "+(i+1):"the plate")+"."; return; } }
   err.textContent="";
   var free=$("noNotes").value.replace(/\s+/g," ").trim(), time=noTime12($("noTime").value);
+  if(noState.edit){ noSaveEdit(name,free,time); return; }
   var pin=lsGet("lmPin",""), asked=false;
   if(!pin){ pin=prompt("Family PIN to save orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
   var btn=$("noSave"); btn.disabled=true; btn.textContent="Saving...";
@@ -1252,9 +1282,41 @@ function noSave(){
   }
   step(0);
 }
+function editErr(r){
+  var e=r&&r.error;
+  if(e==="wrong_pin") return "Wrong PIN. Nothing was changed.";
+  if(e==="name_mismatch") return "The sheet changed (row "+(r.row||"?")+" now says \""+(r.found||"empty")+"\"). Nothing was changed. Refresh and try again.";
+  if(e==="bad_action"||e==="bad_field") return "The Google script needs updating before orders can be edited or deleted (Deploy > New version).";
+  return "Couldn't save: "+(e||"unknown problem")+". Nothing was changed.";
+}
+function noSaveEdit(name,free,time){
+  var err=$("noErr"), pin=askPin("save these changes"); if(!pin) return;          // the PIN is asked every time for edits
+  var btn=$("noSave"); btn.disabled=true; btn.textContent="Saving...";
+  var items=noState.items.map(function(it,i){ return {q:it.q,meat:it.meat,side:it.side,note:[noItemNote(it),it.keep||"",i===0?free:""].filter(Boolean).join(". ")}; });
+  var q="action=edit&name="+encodeURIComponent(name)+"&rows="+encodeURIComponent(JSON.stringify(noState.edit.rows))+"&items="+encodeURIComponent(JSON.stringify(items))+"&time="+encodeURIComponent(time)+"&pin="+encodeURIComponent(pin);
+  var total=noPrice();
+  jsonp(WRITE_URL+"?"+q).then(function(r){
+    btn.disabled=false; btn.textContent="Save changes";
+    if(r&&r.ok){ toast("Updated: "+name+" · "+money(total)); noState=null; noClose(); setTimeout(load,2500); return; }
+    err.textContent=editErr(r); if(r&&r.error==="name_mismatch") load();
+  }).catch(function(){ btn.disabled=false; btn.textContent="Save changes"; err.textContent="Couldn't reach the sheet. Nothing was changed."; });
+}
+function deleteOrder(key){
+  if(!WRITE_URL||!data) return;
+  var g=groupOrders(data.list).filter(function(x){return x.key===key})[0]; if(!g) return;
+  if(!confirm("Delete "+g.name+"'s order ("+g.q+" plate"+(g.q>1?"s":"")+", "+money(g.price)+")?\n\nThis removes "+g.rows.length+" row"+(g.rows.length>1?"s":"")+" from the sheet and can't be undone.")) return;
+  var pin=askPin("delete this order"); if(!pin) return;                          // the PIN is asked every time for deletes
+  var q="action=del&rows="+encodeURIComponent(JSON.stringify(g.rows.map(function(o){return {row:o.row,name:o.name}})))+"&pin="+encodeURIComponent(pin);
+  jsonp(WRITE_URL+"?"+q).then(function(r){
+    if(r&&r.ok){ toast("Deleted: "+g.name); g.rows.forEach(function(o){ o._gone=true; }); data.list=data.list.filter(function(o){return !o._gone}); renderAll(); setTimeout(load,2500); return; }
+    toast(editErr(r),true); if(r&&r.error==="name_mismatch") load();
+  }).catch(function(){ toast("Couldn't reach the sheet. Nothing was deleted.",true); });
+}
 
 document.addEventListener("click",function(e){
   var t=e.target;
+  var eb=t.closest("[data-edit]"); if(eb){ e.preventDefault(); editOpen(eb.getAttribute("data-edit")); return; }
+  var db=t.closest("[data-del]"); if(db){ e.preventDefault(); deleteOrder(db.getAttribute("data-del")); return; }
   if(t.closest("[data-neworder]")){ e.preventDefault(); noOpen(); return; }
   if(!t.closest("#orderModal")) return;
   if(t.id==="orderModal"||t.closest("[data-noclose]")){ noClose(); return; }
@@ -1468,9 +1530,10 @@ function renderOrders(){
     return true;
   });
   var pl=G.reduce(function(a,g){return a+g.q},0), lines=G.reduce(function(a,g){return a+g.rows.length},0);
-  $("ordersTable").innerHTML='<thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th class="n">Total price</th><th>Sheet rows</th></tr></thead><tbody>'+
-    (G.length?G.map(function(g){ return '<tr class="'+(g.flag?"flag":"")+'"><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+(g.flag?'<br><span class="tag r">review</span>':'')+'</td><td>'+esc(g.time)+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td></tr>'; }).join("")
-      :'<tr><td colspan="7" class="muted">No orders match.</td></tr>')+
+  $("ordersTable").innerHTML='<thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Change</th>':'')+'</tr></thead><tbody>'+
+    (G.length?G.map(function(g){ return '<tr class="'+(g.flag?"flag":"")+'"><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+(g.flag?'<br><span class="tag r">review</span>':'')+'</td><td>'+esc(g.time)+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+
+      (WRITE_URL?'<td class="act"><button class="actbtn pk editbtn" type="button" data-edit="'+esc(g.key)+'">Edit order</button><button class="actbtn delbtn" type="button" data-del="'+esc(g.key)+'" title="Delete this order">Delete</button></td>':'')+'</tr>'; }).join("")
+      :'<tr><td colspan="8" class="muted">No orders match.</td></tr>')+
     '</tbody><tfoot><tr><td>'+G.length+' orders</td><td class="n">'+pl+'</td><td colspan="5" class="muted">'+lines+' rows in the sheet</td></tr></tfoot>';
 }
 
@@ -1556,7 +1619,7 @@ load(); state.timer=setInterval(tick,1000);
 <button class="fab" id="fabNew" type="button" data-neworder hidden aria-label="New order" title="New order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="modal" id="orderModal" hidden>
   <div class="msheet" role="dialog" aria-modal="true" aria-label="New order">
-    <div class="mhead"><h3>New order</h3><button class="mclose" type="button" data-noclose aria-label="Close">&times;</button></div>
+    <div class="mhead"><h3 id="noTitle">New order</h3><button class="mclose" type="button" data-noclose aria-label="Close">&times;</button></div>
     <div class="fl">Customer name</div>
     <input class="finput" id="noName" list="noNames" autocomplete="off" placeholder="e.g. Maria Canto">
     <datalist id="noNames"></datalist>
