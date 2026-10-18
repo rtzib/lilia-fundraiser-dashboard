@@ -594,6 +594,40 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
 .ntot { flex:0 0 auto; display:flex; flex-direction:column; line-height:1.15; }
 .ntot b { font-size:22px; color:var(--up); }
 .ntot small { color:var(--muted); font-size:12px; max-width:140px; }
+
+/* ---------- quick filter chips (Orders and Packing) ---------- */
+.qf { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; width:100%; }
+.qf[hidden] { display:none; }
+.qf button { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:18px; padding:6px 10px; font:inherit; font-size:13px; cursor:pointer; min-height:34px; touch-action:manipulation; }
+.qf button b { font-size:11.5px; font-weight:700; color:var(--muted); background:var(--panel2); border-radius:9px; padding:0 6px; line-height:17px; }
+.qf button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.qf button.on b { background:rgba(255,255,255,.25); color:#fff; }
+.qf button.zero { opacity:.45; }
+.qf .qclear { border:0; background:var(--t-pink); color:var(--down); font-weight:600; }
+#view-orders .filters { margin-bottom:4px; }
+
+/* ---------- kitchen: big numbers, one screen ---------- */
+.kh { display:flex; align-items:baseline; justify-content:space-between; margin:4px 2px 8px; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.kh small { font-size:11.5px; font-weight:500; text-transform:none; letter-spacing:0; }
+.kt3.sm .kt { padding:8px 10px 9px; border-top-width:4px; }
+.kt3.sm .kt-v { font-size:30px; }
+.kh b { font-size:26px; color:var(--ink); letter-spacing:0; }
+.kh:not(:first-child) { margin-top:16px; }
+.kt3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.kt2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+#kitchen { margin-bottom:12px; }
+.kt { background:var(--panel); border-radius:16px; padding:10px 12px 12px; border-top:5px solid var(--c); box-shadow:0 1px 3px rgba(16,24,40,.05); min-width:0; }
+body.dark .kt { box-shadow:none; }
+.kt-n { font-size:14px; font-weight:700; color:var(--c); }
+.kt-v { font-size:46px; font-weight:800; line-height:1.05; margin:2px 0 4px; letter-spacing:-1px; }
+.kt-sd { font-size:12.5px; color:var(--muted); display:grid; gap:2px; }
+.kt-sd span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.kt-sd i { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; }
+.kt-sd .bad { color:var(--down); font-weight:600; }
+.kwarn { font-size:13px; color:var(--down); font-weight:600; margin:8px 2px 0; }
+.kwarn .link { color:var(--accent); padding:0; font-size:13px; }
+@media (min-width: 721px) { .kt3.sm .kt-v { font-size:38px; } .kt-v { font-size:60px; } .kt-sd { font-size:14px; } .kt-n { font-size:16px; } }
+@media (max-width: 380px) { .kt { padding:9px 9px 10px; } .kt-v { font-size:40px; } .kt-sd { font-size:11.5px; } }
 </style>
 </head>
 <body>
@@ -661,8 +695,7 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
     <section class="view" id="view-orders" hidden>
       <div class="filters">
         <button class="newbtn inline" type="button" data-neworder hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New order</button>
-        <div class="chiprow"><div class="chips" id="meatChips"></div><div class="chips" id="sideChips"></div><div class="chips" id="flagChips"></div></div>
-        <button class="clearall" id="clearFilt" type="button" hidden>Clear all filters</button>
+        <div class="qf" id="ordersFilt"></div>
       </div>
       <div class="olist" id="ordersList"></div>
       <div class="countline" id="ordersFoot" style="margin-top:8px"></div>
@@ -670,11 +703,7 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
 
     <!-- KITCHEN PREP -->
     <section class="view" id="view-prep" hidden>
-      <div class="pair">
-        <div class="ccard" id="prepMeat"></div>
-        <div class="ccard" id="prepSide"></div>
-      </div>
-      <div class="ccard"><div class="ch">Plates to make <small>meat x side</small></div><div class="tablewrap" id="comboFull"></div></div>
+      <div id="kitchen"></div>
       <details class="ccard" id="notesBox"><summary id="notesTitle">Special notes</summary><div class="klist" id="notesList"></div></details>
     </section>
 
@@ -682,6 +711,7 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
     <section class="view" id="view-pack" hidden>
       <div id="packNoCol"></div>
       <div class="infoline" id="packInfo"></div>
+      <div class="qf" id="packFilt"></div>
       <div class="olist" id="packList"></div>
       <details class="ccard donebox" id="packedBox"><summary id="packedTitle">Already packaged</summary><div class="olist" id="packedList"></div></details>
     </section>
@@ -1127,14 +1157,6 @@ function reviewItems(list,limit){
     return '<div class="it"><span class="who">'+esc(o.name)+'</span><span class="ord">'+o.q+' x '+esc(o.meat||o.meatTxt)+', '+esc(o.side==="rice"?"Rice & Beans":o.side==="tort"?"Tortilla":(o.sideTxt||"no side"))+'</span>'+
       '<div class="why">'+esc(o.flag)+'</div>'+(extrasTxt(o)?'<div class="cnt">Counted so far: '+esc(extrasTxt(o))+'</div>':'')+(o.note?'<span class="nt">'+esc(o.note)+'</span>':'')+'</div>';
   }).join("")+more;
-}
-function comboTable(t){
-  var sides=["rice","tort"]; if(Object.keys(t.combo).some(function(k){return /\|none$/.test(k)})) sides.push("none");
-  var meats=MEATS.slice(); if(t.meat.Unclear) meats.push("Unclear");
-  var h='<table class="keep"><thead><tr><th>Meat</th>'+sides.map(function(s){return '<th class="n">'+SIDENAME[s]+'</th>'}).join("")+'<th class="n">Total</th></tr></thead><tbody>';
-  meats.forEach(function(m){ var tot=0; h+='<tr><td><span class="tag '+(MEATCLS[m]||"r")+'">'+m+'</span></td>'+sides.map(function(s){var v=t.combo[m+"|"+s]||0; tot+=v; return '<td class="n">'+v+'</td>'}).join("")+'<td class="n"><b>'+tot+'</b></td></tr>'; });
-  h+='</tbody><tfoot><tr><td>Total</td>'+sides.map(function(s){return '<td class="n">'+t.side[s]+'</td>'}).join("")+'<td class="n">'+t.plates+'</td></tr></tfoot></table>';
-  return h;
 }
 
 
@@ -1593,8 +1615,7 @@ function renderFlow(L){
   if(!hasP) miss.push("Packaged?"); if(!hasD) miss.push("Delivered?");
   var warn=miss.length?'<div class="warn">No <b>'+miss.join("</b> or <b>")+'</b> checkbox column found in the sheet. Add it and tick it as orders move along.</div>':"";
   $("packNoCol").innerHTML=warn; $("delivNoCol").innerHTML=warn;
-  var now=Date.now(), G=groupOrders(L);
-  G.forEach(function(g){ var d=g.delivered?null:timeOnEvent(g.time); g._due=d; g._late=!!(d&&d.getTime()<now); });
+  var G=lateMark(groupOrders(L));
   var pend=byDue(G.filter(function(g){return !g.delivered&&!g.packaged}));
   var ready=byDue(G.filter(function(g){return !g.delivered&&g.packaged}));
   var done=G.filter(function(g){return g.delivered});
@@ -1605,10 +1626,13 @@ function renderFlow(L){
   var loc=data.cols.loc>=0;
 
   // PACKING: only what still needs packing
-  var pf=pend.filter(hitQ), rf=ready.filter(hitQ), df=done.filter(hitQ), gf=toGo.filter(hitQ);
-  $("packInfo").innerHTML=pend.length?'<span><b>'+pend.length+'</b> to pack · '+plates(pend)+' plates</span>'+(lateP?'<span class="bad">'+lateP+' late</span>':''):'';
+  var pq=pend.filter(hitQ); qfBar($("packFilt"),pq);
+  var pf=pq.filter(function(g){return qfOk(g)}), rf=ready.filter(function(g){return hitQ(g)&&qfOk(g)}), df=done.filter(hitQ), gf=toGo.filter(hitQ);
+  $("packInfo").innerHTML=pend.length?'<span><b>'+pend.length+'</b> to pack · '+plates(pend)+' plates</span>'+(lateP?'<span class="bad">'+lateP+' late</span>':'')+
+    (qfOn()&&pf.length<pq.length?'<span>showing <b>'+pf.length+'</b> · '+plates(pf)+' plates</span>':''):'';
   $("packList").innerHTML=cardList(pf,function(g){ return {time:1,rowState:1,act:goBtn(g,"packaged","true","","Packed")}; },
-    pend.length?"Nothing to pack matches the search.":"Everything is packed.",!pend.length);
+    pend.length?(qfOn()?"Nothing to pack matches these filters.":"Nothing to pack matches the search."):"Everything is packed.",!pend.length);
+  $("packFilt").hidden=!pend.length;
   $("packedBox").hidden=!hasP||!ready.length;
   $("packedTitle").textContent="Packed, waiting to go out ("+(filt.q?rf.length+" of ":"")+ready.length+")";
   $("packedList").innerHTML=cardList(rf,function(g){ return {time:1,act:goBtn(g,"packaged","false","undo","Undo")}; },"Nothing here matches the search.");
@@ -1657,16 +1681,19 @@ function renderAll(){
 
   renderDash(t,L);
 
-  // kitchen prep
-  var xd=function(p,x){ return x?p+" plates + "+x+" extra":""; };
-  $("prepMeat").innerHTML=listCard("Meats to cook","pieces",[
-    {c:MEATVAR.Chicken,n:"Chicken",d:xd(t.meat.Chicken,t.chickExtra),v:t.meat.Chicken+t.chickExtra},
-    {c:MEATVAR.Pork,n:"Pork",d:xd(t.meat.Pork,t.porkExtra),v:t.meat.Pork+t.porkExtra},
-    {c:MEATVAR["Italian Sausage"],n:"Italian Sausage",d:xd(t.meat["Italian Sausage"],t.sausExtra),v:t.sausTotal}]);
-  $("prepSide").innerHTML=listCard("Sides to make","",[
-    {c:"var(--rice)",n:"Rice and Beans",d:"",v:t.side.rice},
-    {c:"var(--tort)",n:"Tortillas",d:t.tortPlates+" plates x 2"+(t.tortExtra?" + "+t.tortExtra+" extra":""),v:t.tortTotal}]);
-  $("comboFull").innerHTML=comboTable(t);
+  // kitchen: plates to make first, then sides, all on one screen
+  var side2=function(m){ var r=t.combo[m+"|rice"]||0, k=t.combo[m+"|tort"]||0, n=t.combo[m+"|none"]||0;
+    return '<div class="kt-sd"><span><i style="background:var(--rice)"></i>'+r+' Rice &amp; Beans</span><span><i style="background:var(--tort)"></i>'+k+' Tortilla</span>'+(n?'<span class="bad">'+n+' no side</span>':'')+'</div>'; };
+  var pieces=[["Chicken",t.meat.Chicken,t.chickExtra],["Pork",t.meat.Pork,t.porkExtra],["Italian Sausage",t.meat["Italian Sausage"],t.sausExtra]];
+  $("kitchen").innerHTML=
+    '<div class="kh"><span>Plates to make</span><b>'+t.plates+'</b></div>'+
+    '<div class="kt3">'+MEATS.map(function(m){ return '<div class="kt" style="--c:'+MEATVAR[m]+'"><div class="kt-n">'+(m==="Italian Sausage"?"Sausage":m)+'</div><div class="kt-v">'+t.meat[m]+'</div>'+side2(m)+'</div>'; }).join("")+'</div>'+
+    (t.meat.Unclear?'<div class="kwarn">'+t.meat.Unclear+' plate'+(t.meat.Unclear>1?'s':'')+' with an unclear meat · <button class="link" data-goto="review">Review</button></div>':'')+
+    '<div class="kh"><span>Sides to make</span></div>'+
+    '<div class="kt2"><div class="kt" style="--c:var(--rice)"><div class="kt-n">Rice &amp; Beans</div><div class="kt-v">'+t.side.rice+'</div><div class="kt-sd">plates</div></div>'+
+      '<div class="kt" style="--c:var(--tort)"><div class="kt-n">Tortillas</div><div class="kt-v">'+t.tortTotal+'</div><div class="kt-sd">'+t.tortPlates+' plates x 2'+(t.tortExtra?' + '+t.tortExtra+' extra':'')+'</div></div></div>'+
+    '<div class="kh"><span>Meats to cook</span><small>pieces, with extras</small></div>'+
+    '<div class="kt3 sm">'+pieces.map(function(p){ return '<div class="kt" style="--c:'+MEATVAR[p[0]]+'"><div class="kt-n">'+(p[0]==="Italian Sausage"?"Sausage":p[0])+'</div><div class="kt-v">'+(p[1]+p[2])+'</div><div class="kt-sd">'+(p[2]?p[1]+' plates + '+p[2]+' extra':'no extras')+'</div></div>'; }).join("")+'</div>';
   var kn=L.filter(function(o){ return o.flag||noKeepNote(o.note); });
   $("notesTitle").textContent="Special notes ("+kn.length+")";
   $("notesList").innerHTML=kn.length?kn.map(function(o){ return '<div class="kn"><b>'+esc(o.name)+'</b> <small>'+o.q+' '+esc(o.meat||o.meatTxt||"?")+' · '+esc(sideWord(o))+(extrasTxt(o)?' · '+esc(extrasTxt(o)):'')+'</small><div>'+esc(o.flag?o.note:noKeepNote(o.note))+'</div></div>'; }).join(""):'<p class="muted" style="margin:4px 0">No special notes.</p>';
@@ -1680,30 +1707,42 @@ function renderAll(){
   cardify(); showFind(); swipeDots();
   $("pPork").textContent=PRICES.Pork; $("pChicken").textContent=PRICES.Chicken; $("pSausage").textContent=PRICES["Italian Sausage"];
 }
-function chips(el,key,opts){
-  el.innerHTML=opts.map(function(o){return '<button data-k="'+key+'" data-v="'+esc(o)+'" class="'+(filt[key]===o?"on":"")+'">'+esc(o)+'</button>'}).join("");
+// quick filters: one set, used on Orders and Packing. Tap a chip to turn it on, tap again to turn it off.
+var QF=[
+  {k:"meat",v:"Chicken",l:"Chicken",row:function(o){return o.meat==="Chicken"}},
+  {k:"meat",v:"Pork",l:"Pork",row:function(o){return o.meat==="Pork"}},
+  {k:"meat",v:"Italian Sausage",l:"Sausage",row:function(o){return o.meat==="Italian Sausage"}},
+  {k:"side",v:"rice",l:"Rice & Beans",row:function(o){return o.side==="rice"}},
+  {k:"side",v:"tort",l:"Tortilla",row:function(o){return o.side==="tort"}},
+  {k:"flag",v:"late",l:"Late",grp:function(g){return g._late}},
+  {k:"flag",v:"notes",l:"Has notes",grp:function(g){return g.rows.some(function(o){return o.flag||noKeepNote(o.note)})}},
+  {k:"flag",v:"review",l:"Needs review",grp:function(g){return g.flag}}];
+function qfDef(k){ return QF.filter(function(f){return f.k===k&&f.v===filt[k]})[0]; }
+// meat and side are checked on the same plate (Chicken + Tortilla = a chicken plate with tortilla)
+function qfOk(g){
+  var m=qfDef("meat"), sd=qfDef("side"), fl=qfDef("flag");
+  if((m||sd)&&!g.rows.some(function(o){ return (!m||m.row(o))&&(!sd||sd.row(o)); })) return false;
+  return !fl||fl.grp(g);
 }
+function qfOn(){ return ["meat","side","flag"].filter(function(k){return filt[k]!=="All"}).length; }
+function qfBar(el,G){
+  // each chip counts the orders it would show, given the other filters that are on
+  el.innerHTML=QF.map(function(f){
+    var on=filt[f.k]===f.v, keep=filt[f.k]; filt[f.k]=f.v;
+    var n=G.filter(function(g){ return qfOk(g); }).length; filt[f.k]=keep;
+    if(f.v==="late"&&!n&&!on) return "";
+    return '<button type="button" data-qk="'+f.k+'" data-qv="'+esc(f.v)+'" class="'+(on?"on":"")+(n||on?"":" zero")+'">'+esc(f.l)+'<b>'+n+'</b></button>';
+  }).join("")+(qfOn()?'<button type="button" class="qclear" data-qclear="1">Clear</button>':'');
+}
+function lateMark(G){ var now=Date.now(); G.forEach(function(g){ var d=g.delivered?null:timeOnEvent(g.time); g._due=d; g._late=!!(d&&d.getTime()<now); }); return G; }
 function renderOrders(){
-  chips($("meatChips"),"meat",["All"].concat(MEATS)); chips($("sideChips"),"side",["All","Rice & Beans","Tortilla"]); chips($("flagChips"),"flag",["All","Has notes","Needs review"]);
-  var q=norm(filt.q);
-  var rowOk=function(o){
-    if(filt.meat!=="All"&&o.meat!==filt.meat) return false;
-    if(filt.side==="Rice & Beans"&&o.side!=="rice") return false;
-    if(filt.side==="Tortilla"&&o.side!=="tort") return false;
-    if(filt.flag==="Has notes"&&!o.note) return false;
-    if(filt.flag==="Needs review"&&!o.flag) return false;
-    return true;
-  };
-  var nAct=(filt.meat!=="All")+(filt.side!=="All")+(filt.flag!=="All")+(filt.q?1:0);
-  var cb=$("clearFilt"); cb.hidden=!nAct; cb.textContent="Clear all filters ("+nAct+")";
-  var G=groupOrders(data.list).filter(function(g){
-    if(!g.rows.some(rowOk)) return false;
-    if(q&&norm(g.name+" "+g.notes.join(" ")).indexOf(q)<0) return false;
-    return true;
-  });
+  var q=norm(filt.q), all=lateMark(groupOrders(data.list));
+  var hitq=function(g){ return !q||norm(g.name+" "+g.notes.join(" ")).indexOf(q)>=0; };
+  qfBar($("ordersFilt"),all.filter(hitq));
+  var G=all.filter(function(g){ return hitq(g)&&qfOk(g); });
   var pl=G.reduce(function(a,g){return a+g.q},0), lines=G.reduce(function(a,g){return a+g.rows.length},0);
-  $("ordersList").innerHTML=cardList(G,function(){ return {time:1,price:1,count:1,flag:1}; },"No orders match.");
-  $("ordersFoot").innerHTML=G.length?'<b>'+G.length+'</b> orders · '+pl+' plates · '+lines+' rows in the sheet':'';
+  $("ordersList").innerHTML=cardList(G,function(){ return {time:1,price:1,count:1,flag:1}; },qfOn()?"No orders match these filters.":"No orders match.");
+  $("ordersFoot").innerHTML=G.length?'<b>'+G.length+'</b>'+(G.length<all.length?' of '+all.length:'')+' orders · '+pl+' plates · '+lines+' rows in the sheet':'';
   FIND.orders=findTxt(G.length);
 }
 
@@ -1753,8 +1792,12 @@ function go(v,dir){
 document.querySelectorAll("#nav button").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-view"))}; });
 document.addEventListener("click",function(e){ var b=e.target.closest("[data-goto]"); if(b){ e.preventDefault(); go(b.getAttribute("data-goto")); } });
 $("helpBtn").onclick=function(){ go("help"); };
-document.addEventListener("click",function(e){ var b=e.target.closest(".chips button"); if(!b||!data) return; filt[b.getAttribute("data-k")]=b.getAttribute("data-v"); renderOrders(); cardify(); showFind(); });
-$("clearFilt").onclick=function(){ filt.meat="All"; filt.side="All"; filt.flag="All"; setSearch(""); if(data){ renderOrders(); cardify(); } };
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-qk],[data-qclear]"); if(!b||!data) return;
+  if(b.hasAttribute("data-qclear")){ filt.meat="All"; filt.side="All"; filt.flag="All"; }
+  else { var k=b.getAttribute("data-qk"), v=b.getAttribute("data-qv"); filt[k]=filt[k]===v?"All":v; }
+  renderOrders(); renderFlow(data.list); showFind();
+});
 var searchT=null;
 function setSearch(v){
   filt.q=v;
