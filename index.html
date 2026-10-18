@@ -599,10 +599,8 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
 .qf { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; width:100%; }
 .qf[hidden] { display:none; }
 .qf button { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:18px; padding:6px 10px; font:inherit; font-size:13px; cursor:pointer; min-height:34px; touch-action:manipulation; }
-.qf button i { width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
 .qf button b { font-size:11.5px; font-weight:700; color:var(--muted); background:var(--panel2); border-radius:9px; padding:0 6px; line-height:17px; }
 .qf button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
-.qf button.on i { box-shadow:0 0 0 2px #fff; }
 .qf button.on b { background:rgba(255,255,255,.25); color:#fff; }
 .qf button.zero { opacity:.45; }
 .qf .qclear { border:0; background:var(--t-pink); color:var(--down); font-weight:600; }
@@ -1711,11 +1709,11 @@ function renderAll(){
 }
 // quick filters: one set, used on Orders and Packing. Tap a chip to turn it on, tap again to turn it off.
 var QF=[
-  {k:"meat",v:"Chicken",l:"Chicken",c:"var(--chicken)",row:function(o){return o.meat==="Chicken"}},
-  {k:"meat",v:"Pork",l:"Pork",c:"var(--pork)",row:function(o){return o.meat==="Pork"}},
-  {k:"meat",v:"Italian Sausage",l:"Sausage",c:"var(--sausage)",row:function(o){return o.meat==="Italian Sausage"}},
-  {k:"side",v:"rice",l:"Rice & Beans",c:"var(--rice)",row:function(o){return o.side==="rice"}},
-  {k:"side",v:"tort",l:"Tortilla",c:"var(--tort)",row:function(o){return o.side==="tort"}},
+  {k:"meat",v:"Chicken",l:"Chicken",row:function(o){return o.meat==="Chicken"}},
+  {k:"meat",v:"Pork",l:"Pork",row:function(o){return o.meat==="Pork"}},
+  {k:"meat",v:"Italian Sausage",l:"Sausage",row:function(o){return o.meat==="Italian Sausage"}},
+  {k:"side",v:"rice",l:"Rice & Beans",row:function(o){return o.side==="rice"}},
+  {k:"side",v:"tort",l:"Tortilla",row:function(o){return o.side==="tort"}},
   {k:"flag",v:"late",l:"Late",grp:function(g){return g._late}},
   {k:"flag",v:"notes",l:"Has notes",grp:function(g){return g.rows.some(function(o){return o.flag||noKeepNote(o.note)})}},
   {k:"flag",v:"review",l:"Needs review",grp:function(g){return g.flag}}];
@@ -1733,7 +1731,7 @@ function qfBar(el,G){
     var on=filt[f.k]===f.v, keep=filt[f.k]; filt[f.k]=f.v;
     var n=G.filter(function(g){ return qfOk(g); }).length; filt[f.k]=keep;
     if(f.v==="late"&&!n&&!on) return "";
-    return '<button type="button" data-qk="'+f.k+'" data-qv="'+esc(f.v)+'" class="'+(on?"on":"")+(n||on?"":" zero")+'">'+(f.c?'<i style="background:'+f.c+'"></i>':'')+esc(f.l)+'<b>'+n+'</b></button>';
+    return '<button type="button" data-qk="'+f.k+'" data-qv="'+esc(f.v)+'" class="'+(on?"on":"")+(n||on?"":" zero")+'">'+esc(f.l)+'<b>'+n+'</b></button>';
   }).join("")+(qfOn()?'<button type="button" class="qclear" data-qclear="1">Clear</button>':'');
 }
 function lateMark(G){ var now=Date.now(); G.forEach(function(g){ var d=g.delivered?null:timeOnEvent(g.time); g._due=d; g._late=!!(d&&d.getTime()<now); }); return G; }
