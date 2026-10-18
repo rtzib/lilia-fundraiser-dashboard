@@ -531,7 +531,7 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
   .themebtn.helpbtn { display:grid; }
   .nav button.navhelp { display:none; }
   .fabs { display:flex; flex-direction:column; align-items:center; gap:12px; position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom)); z-index:60; }
-  .fabs .fab { position:static; }
+  .fabs .fab { position:static; bottom:auto; right:auto; }
   .fab.fabsearch { width:50px; height:50px; background:var(--panel); color:var(--accent); box-shadow:0 4px 14px rgba(16,24,40,.18), 0 1px 4px rgba(0,0,0,.1); position:relative; }
   .fab.fabsearch svg { width:22px; height:22px; }
   .fab.fabsearch.on::after { content:""; position:absolute; top:6px; right:6px; width:10px; height:10px; border-radius:50%; background:var(--down); border:2px solid var(--panel); }
@@ -539,6 +539,30 @@ body.sv .gsearch { display:block; margin-bottom:12px; }
   main { padding-bottom:calc(210px + env(safe-area-inset-bottom)); }
   .oc-name { font-size:14.5px; }
 }
+
+/* tap a card to open the full order */
+.oc-main { cursor:pointer; -webkit-tap-highlight-color:transparent; outline:none; }
+.oc { align-items:flex-start; }
+.oc > .oc-edit, .oc > .oc-go { align-self:center; }
+.oc.open > .oc-edit, .oc.open > .oc-go { align-self:flex-start; }
+.oc:not(.open) .oc-it { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.oc:not(.open) .oc-note { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.oc.open { box-shadow:0 0 0 2px var(--accent); }
+.oc.open .oc-items, .oc.open .oc-note, .oc.open .oc-sub { display:none; }
+.oc-more { display:none; flex:0 0 100%; cursor:pointer; }
+.oc.open { flex-wrap:wrap; }
+.oc.open .oc-more { display:block; margin-top:-2px; padding-right:4px; font-size:13.5px; animation:ocIn .15s ease; }
+@keyframes ocIn { from { opacity:0; } to { opacity:1; } }
+.ocm-it { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-top:1px solid var(--line); }
+.ocm-it small { color:var(--muted); }
+.ocm-p { white-space:nowrap; color:var(--up); }
+.ocm-note { font-size:13px; background:var(--panel2); border-radius:8px; padding:5px 9px; margin:0 0 6px; word-break:break-word; }
+.ocm-flag { font-size:12.5px; color:var(--down); font-weight:600; margin:0 0 6px; }
+.ocm-r { display:flex; gap:10px; padding:5px 0; border-top:1px solid var(--line); }
+.ocm-r > span { color:var(--muted); flex:0 0 80px; font-size:12.5px; }
+.ocm-r small { color:var(--muted); }
+.oc-tag.g { background:var(--t-green); color:var(--up); }
+.oc-tag.o { background:var(--t-peach); color:#c0761f; }
 </style>
 </head>
 <body>
@@ -1281,15 +1305,38 @@ function ocard(g,opt){
   }).join("");
   // notes: the extras already shown on the item line are left out, unless the note needs review
   var notes=g.rows.map(function(o){ return o.flag?o.note:noKeepNote(o.note); }).filter(Boolean).join(" / ");
-  var late=opt.time&&g._late, meta=[];
+  var late=opt.time&&g._late, meta=[], open=openCard===g.key;
   if(many&&opt.count) meta.push(g.q+" plates"); if(opt.price) meta.push('<b>'+money(g.price)+'</b>');
-  return '<div class="oc'+(late?' late':'')+(opt.flag&&g.flag?' flagged':'')+'"><div class="oc-main"><div class="oc-top">'+
+  return '<div class="oc'+(late?' late':'')+(opt.flag&&g.flag?' flagged':'')+(open?' open':'')+'" data-card="'+esc(g.key)+'"><div class="oc-main" role="button" tabindex="0" aria-expanded="'+open+'"><div class="oc-top">'+
       (opt.time&&g.time?'<span class="oc-time">'+esc(g.time)+'</span>':'')+'<span class="oc-name">'+esc(g.name)+'</span>'+
       (opt.flag&&g.flag?'<span class="oc-tag r">review</span>':'')+
       (meta.length?'<span class="oc-meta">'+meta.join(" · ")+'</span>':'')+'</div>'+
       '<div class="oc-items">'+items+'</div>'+(notes?'<div class="oc-note">'+esc(notes)+'</div>':'')+(opt.sub?'<div class="oc-sub">'+opt.sub+'</div>':'')+'</div>'+
-    (WRITE_URL?'<button class="oc-edit" type="button" data-edit="'+esc(g.key)+'" aria-label="Edit '+esc(g.name)+'\'s order" title="Edit order">'+PENCIL+'</button>':'')+(WRITE_URL?opt.act||'':'')+'</div>';
+    (WRITE_URL?'<button class="oc-edit" type="button" data-edit="'+esc(g.key)+'" aria-label="Edit '+esc(g.name)+'\'s order" title="Edit order">'+PENCIL+'</button>':'')+(WRITE_URL?opt.act||'':'')+ocMore(g)+'</div>';
 }
+// the full order, shown when a card is tapped
+var openCard=null;
+function ocMore(g){
+  var st=function(o){ return o.delivered?'<span class="oc-tag g">delivered</span>':o.packaged?'<span class="oc-tag">packed</span>':'<span class="oc-tag o">to pack</span>'; };
+  var hasSt=data&&(data.cols.pack>=0||data.cols.deliv>=0), sellers={};
+  g.rows.forEach(function(o){ if(o.seller) sellers[o.seller]=1; });
+  var line=function(k,v){ return v?'<div class="ocm-r"><span>'+k+'</span><div>'+v+'</div></div>':''; };
+  return '<div class="oc-more">'+
+    g.rows.map(function(o){ var ex=extrasTxt(o), pr=orderPrice(o);
+      return '<div class="ocm-it"><div><b>'+o.q+' x '+esc(o.meat||o.meatTxt||"?")+'</b> with '+esc(sideWord(o))+(ex?'<br><small>'+esc(ex)+'</small>':'')+(hasSt?' '+st(o):'')+'</div><b class="ocm-p">'+money(pr.total)+'</b></div>'+
+        (o.note?'<div class="ocm-note">'+esc(o.note)+'</div>':'')+(o.flag?'<div class="ocm-flag">'+esc(o.flag)+'</div>':''); }).join("")+
+    line("Total",'<b>'+g.q+' plate'+(g.q>1?'s':'')+' \u00b7 '+money(g.price)+'</b>'+(g.unpriced?' <small>(+'+g.unpriced+' extra not priced)</small>':''))+
+    line("Needed by",esc(g.time))+line("Location",esc(g.loc))+line("Taken by",esc(Object.keys(sellers).join(", ")))+
+    line("Sheet row"+(g.rows.length>1?"s":""),g.rowList.map(function(r){return "#"+r}).join(", "))+'</div>';
+}
+function toggleCard(card){
+  var key=card.getAttribute("data-card"), open=!card.classList.contains("open");
+  openCard=open?key:null;
+  document.querySelectorAll(".oc.open").forEach(function(c){ c.classList.remove("open"); c.firstChild.setAttribute("aria-expanded","false"); });
+  if(open){ document.querySelectorAll('.oc[data-card]').forEach(function(c){ if(c.getAttribute("data-card")===key){ c.classList.add("open"); c.firstChild.setAttribute("aria-expanded","true"); } }); }
+}
+document.addEventListener("click",function(e){ var m=e.target.closest(".oc-main,.oc-more"); if(m&&!e.target.closest("button,a")) toggleCard(m.parentNode); });
+document.addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("oc-main")){ e.preventDefault(); toggleCard(e.target.parentNode); } });
 function goBtn(g,field,val,cls,label){ return '<button class="oc-go '+cls+'" type="button" data-act="'+field+'" data-val="'+val+'" data-key="'+esc(g.key)+'">'+label+'</button>'; }
 function cardList(a,opt,empty,ok){ return a.length?a.map(function(g){return ocard(g,opt(g))}).join(""):'<div class="oc-empty'+(ok?' ok':'')+'">'+empty+'</div>'; }
 
