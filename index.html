@@ -407,7 +407,7 @@ details.ccard[open] > summary { margin-bottom:10px; }
          box-shadow:0 6px 18px rgba(47,111,222,.45), 0 2px 6px rgba(0,0,0,.15); transition:transform .15s; }
   .fab:active { transform:scale(.92); }
   .fab svg { width:26px; height:26px; }
-  .fab[hidden], body.fab-off .fab { display:none !important; }
+  .fab[hidden], body.fab-off #fabNew { display:none !important; }
   .newbtn:not(.fab) { display:none !important; }    /* on phones the floating + replaces the big buttons */
   main { padding-bottom:calc(150px + env(safe-area-inset-bottom)); }
 }
@@ -469,6 +469,76 @@ textarea.finput { resize:vertical; min-height:44px; }
   .msheet { max-width:none; border-radius:20px 20px 0 0; max-height:94vh; padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
   .grid2 { grid-template-columns:1fr; }
 }
+
+/* ---------- compact order cards (Orders, Packing, Deliveries) ---------- */
+.olist { display:grid; gap:6px; }
+@media (min-width: 900px) { .olist { grid-template-columns:repeat(auto-fill, minmax(380px,1fr)); gap:8px; } }
+.oc { display:flex; align-items:center; gap:8px; background:var(--panel); border-radius:14px; padding:8px 8px 8px 12px; box-shadow:0 1px 3px rgba(16,24,40,.05); border-left:3px solid transparent; min-width:0; }
+body.dark .oc { box-shadow:none; }
+.oc.late { border-left-color:var(--down); }
+.oc.flagged { border-left-color:#d9822b; }
+.oc-main { flex:1; min-width:0; }
+.oc-top { display:flex; align-items:baseline; gap:7px; min-width:0; }
+.oc-time { font-size:12px; font-weight:700; color:var(--accent); white-space:nowrap; flex:0 0 auto; }
+.oc.late .oc-time { color:var(--down); }
+.oc-name { font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.oc-meta { margin-left:auto; padding-left:6px; font-size:12.5px; color:var(--muted); white-space:nowrap; flex:0 0 auto; }
+.oc-meta b { color:var(--up); font-weight:700; }
+.oc-items { font-size:13px; line-height:1.35; margin-top:1px; }
+.oc-it { display:block; }
+.oc-it i { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; vertical-align:1px; }
+.oc-it small, .oc-sub { color:var(--muted); font-size:12px; }
+.oc-note { font-size:12px; color:var(--ink); opacity:.8; margin-top:2px; word-break:break-word; }
+.oc-note::before { content:"Note: "; color:var(--muted); }
+.oc-tag { display:inline-block; font-size:11px; font-weight:600; border-radius:8px; padding:0 6px; margin-left:4px; background:var(--panel2); color:var(--muted); vertical-align:1px; }
+.oc-tag.r { background:var(--t-pink); color:var(--down); }
+.oc-edit { flex:0 0 auto; width:32px; height:32px; border-radius:50%; border:0; background:var(--panel2); color:var(--muted); display:grid; place-items:center; cursor:pointer; padding:0; }
+.oc-edit:hover, .oc-edit:active { color:var(--accent); }
+.oc-edit svg { width:15px; height:15px; }
+.oc-go { flex:0 0 auto; border:0; border-radius:12px; min-width:82px; height:42px; padding:0 12px; font:inherit; font-size:14px; font-weight:700; color:#fff; background:var(--accent); cursor:pointer; touch-action:manipulation; }
+.oc-go.dl { background:var(--up); }
+.oc-go.undo { background:var(--panel2); color:var(--muted); font-weight:600; min-width:0; height:32px; font-size:12.5px; }
+.oc-go:active { transform:scale(.95); }
+.oc-empty { color:var(--muted); padding:10px 2px; font-size:13.5px; }
+.oc-empty.ok { color:var(--up); font-weight:600; }
+.donebox { margin-top:10px; }
+.donebox[open] > summary { margin-bottom:8px; }
+.donebox .oc { background:var(--bg); box-shadow:none; }
+.infoline .link { padding:0; font-size:13px; color:var(--accent); }
+.ndel { width:100%; margin-top:10px; border:0; border-radius:14px; padding:12px; background:transparent; color:var(--down); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+.ndel:hover { background:var(--t-pink); }
+.ndel[hidden] { display:none; }
+.klist .kn { padding:8px 0; border-top:1px solid var(--line); font-size:13.5px; }
+.klist .kn:first-child { border-top:0; }
+.klist .kn small { color:var(--muted); }
+.klist .kn div { color:var(--muted); font-size:12.5px; margin-top:2px; }
+
+/* ---------- search bar (one for every tab) ---------- */
+.gsearch { display:none; }
+body.sv .gsearch { display:block; margin-bottom:12px; }
+.gsearch .searchbox { max-width:460px; }
+.gsearch .findnote { margin:6px 2px 0; }
+.gsearch .findnote:empty { display:none; }
+@media (min-width: 721px) { .gsearch .sclear.empty { display:none; } }
+.themebtn.helpbtn { display:none; }
+.fabs { display:none; }
+@media (max-width: 720px) {
+  .topwrap { position:sticky; top:0; z-index:40; background:var(--bg); margin-bottom:10px; }
+  .top { position:static; margin-bottom:0; }
+  body.sv .gsearch { display:none; }
+  body.sv.search-on .gsearch { display:block; margin:0; padding:0 0 8px; }
+  .gsearch .searchbox { max-width:none; }
+  .themebtn.helpbtn { display:grid; }
+  .nav button.navhelp { display:none; }
+  .fabs { display:flex; flex-direction:column; align-items:center; gap:12px; position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom)); z-index:60; }
+  .fabs .fab { position:static; }
+  .fab.fabsearch { width:50px; height:50px; background:var(--panel); color:var(--accent); box-shadow:0 4px 14px rgba(16,24,40,.18), 0 1px 4px rgba(0,0,0,.1); position:relative; }
+  .fab.fabsearch svg { width:22px; height:22px; }
+  .fab.fabsearch.on::after { content:""; position:absolute; top:6px; right:6px; width:10px; height:10px; border-radius:50%; background:var(--down); border:2px solid var(--panel); }
+  body.srch-off .fab.fabsearch { display:none !important; }
+  main { padding-bottom:calc(210px + env(safe-area-inset-bottom)); }
+  .oc-name { font-size:14.5px; }
+}
 </style>
 </head>
 <body>
@@ -479,15 +549,17 @@ textarea.finput { resize:vertical; min-height:44px; }
       <button data-view="dashboard" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nl"><span class="long">Dashboard</span><span class="short">Home</span></span></button>
       <button data-view="orders"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span class="nl"><span class="long">Orders</span><span class="short">Orders</span></span></button>
       <button data-view="prep"><svg viewBox="0 0 24 24"><path d="M6 10h12l-1 10H7z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg><span class="nl"><span class="long">Kitchen Prep</span><span class="short">Kitchen</span></span></button>
+      <button data-view="pack"><svg viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/></svg><span class="nl"><span class="long">Packing</span><span class="short">Pack</span></span><b class="badge" id="packBadge" style="background:var(--accent)" hidden></b></button>
       <button data-view="deliv"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><span class="nl"><span class="long">Deliveries</span><span class="short">Deliver</span></span><b class="badge" id="delivBadge" style="background:var(--accent)" hidden></b></button>
       <button data-view="review"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><span class="nl"><span class="long">Needs Review</span><span class="short">Review</span></span><b class="badge" id="reviewBadge" hidden></b></button>
       <div class="navsep">Help</div>
-      <button data-view="help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span class="nl"><span class="long">How it counts</span><span class="short">Help</span></span></button>
+      <button data-view="help" class="navhelp"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span class="nl"><span class="long">How it counts</span><span class="short">Help</span></span></button>
     </nav>
     <div class="event"><b>Sat, Oct 17 &middot; 6 PM</b>Suku'uno'ob Restaurant<br>Orders: 651-6306 / 666-1627</div>
   </aside>
 
   <main>
+    <div class="topwrap">
     <div class="top">
       <div>
         <h1 id="title">Dashboard</h1>
@@ -496,8 +568,11 @@ textarea.finput { resize:vertical; min-height:44px; }
       <div class="ctrls">
         <div class="pill"><span class="dot load" id="dot"></span><span id="lastUpdated">Loading</span><span class="muted" id="countdown"></span></div>
         <button class="iconbtn main" id="refreshBtn" title="Refresh now"><svg class="ico" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span class="lbl">Refresh now</span></button>
+        <button class="themebtn helpbtn" id="helpBtn" title="How it counts" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg></button>
         <button class="themebtn" id="themeBtn" title="Switch to light mode" aria-label="Switch light or dark mode"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></svg></button>
       </div>
+    </div>
+    <div class="gsearch" id="gsearch"><div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off" enterkeyhint="search"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search">&times;</button></div><div class="findnote" id="findNote"></div></div>
     </div>
     <div class="swipehint" id="swipeHint"></div>
     <div id="errorBox"></div>
@@ -515,6 +590,7 @@ textarea.finput { resize:vertical; min-height:44px; }
           <div class="ccard tint-peach" id="ordersCard"></div>
         </div>
       </div>
+      <div class="ccard" id="flowCard" hidden></div>
       <div class="ccard" id="meatList"></div>
       <div class="ccard" id="sideList"></div>
       <details class="ccard" id="recentBox">
@@ -528,46 +604,39 @@ textarea.finput { resize:vertical; min-height:44px; }
 
     <!-- ORDERS -->
     <section class="view" id="view-orders" hidden>
-      <div class="panel">
-        <div class="filters">
-          <button class="newbtn inline" type="button" data-neworder hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New order</button>
-          <div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="search" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div>
-          <div class="chiprow"><div class="chips" id="meatChips"></div><div class="chips" id="sideChips"></div><div class="chips" id="flagChips"></div></div>
-          <button class="clearall" id="clearFilt" type="button" hidden>Clear all filters</button>
-        </div>
-        <div class="tablewrap"><table id="ordersTable"></table></div>
+      <div class="filters">
+        <button class="newbtn inline" type="button" data-neworder hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New order</button>
+        <div class="chiprow"><div class="chips" id="meatChips"></div><div class="chips" id="sideChips"></div><div class="chips" id="flagChips"></div></div>
+        <button class="clearall" id="clearFilt" type="button" hidden>Clear all filters</button>
       </div>
+      <div class="olist" id="ordersList"></div>
+      <div class="countline" id="ordersFoot" style="margin-top:8px"></div>
     </section>
 
     <!-- KITCHEN PREP -->
     <section class="view" id="view-prep" hidden>
-      <div class="filters"><div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="searchPrep" data-search="1" placeholder="Find a customer's order" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div></div>
-      <div id="prepFind"></div>
       <div class="pair">
         <div class="ccard" id="prepMeat"></div>
         <div class="ccard" id="prepSide"></div>
       </div>
-      <div class="row2">
-        <div class="panel"><div class="ph"><h3>Plates to make (meat x side)</h3></div><div class="tablewrap" id="comboFull"></div></div>
-        <div class="panel"><div class="ph"><h3>When orders are needed</h3></div><div class="tablewrap" id="timeTable"></div></div>
-      </div>
-      <div class="panel"><div class="ph"><h3>Orders with extras or special notes</h3></div><div class="tablewrap" id="notesTable"></div></div>
+      <div class="ccard"><div class="ch">Plates to make <small>meat x side</small></div><div class="tablewrap" id="comboFull"></div></div>
+      <details class="ccard" id="notesBox"><summary id="notesTitle">Special notes</summary><div class="klist" id="notesList"></div></details>
+    </section>
+
+    <!-- PACKING -->
+    <section class="view" id="view-pack" hidden>
+      <div id="packNoCol"></div>
+      <div class="infoline" id="packInfo"></div>
+      <div class="olist" id="packList"></div>
+      <details class="ccard donebox" id="packedBox"><summary id="packedTitle">Already packaged</summary><div class="olist" id="packedList"></div></details>
     </section>
 
     <!-- DELIVERIES -->
     <section class="view" id="view-deliv" hidden>
-      <div class="filters"><div class="searchbox"><svg class="sicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input class="search" type="search" id="searchDeliv" data-search="1" placeholder="Search a name or note" autocomplete="off"><button class="sclear" type="button" data-sclear="1" aria-label="Clear search" title="Clear search" hidden>&times;</button></div><div class="chips" id="delivChips"></div></div>
-      <div id="delivFound"></div>
       <div id="delivNoCol"></div>
-      <div id="delivKpis"></div>
-      <div class="panel" style="margin-bottom:12px">
-        <div class="ph"><h3>Progress</h3><span class="muted" style="font-size:12.5px" id="delivPct"></span></div>
-        <div class="stack" id="delivStack"></div>
-        <div class="stacklegend" id="delivLegend"></div>
-      </div>
-      <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="readyTitle">Packaged, waiting to go out</h3></div><div class="tablewrap" id="readyTable"></div></div>
-      <div class="panel" style="margin-bottom:12px"><div class="ph"><h3 id="pendTitle">Still to package</h3></div><div class="tablewrap" id="pendTable"></div></div>
-      <div class="panel"><details id="doneBox"><summary id="doneTitle">Delivered</summary><div class="tablewrap" id="doneTable" style="margin-top:10px"></div></details></div>
+      <div class="infoline" id="delivInfo"></div>
+      <div class="olist" id="delivList"></div>
+      <details class="ccard donebox" id="doneBox"><summary id="doneTitle">Delivered</summary><div class="olist" id="doneList"></div></details>
     </section>
 
     <!-- REVIEW -->
@@ -600,8 +669,8 @@ textarea.finput { resize:vertical; min-height:44px; }
           <li>Packing notes are fine and won't be flagged: <code>tortillas separate in foil</code>.</li>
           <li>A second plate with a different meat or side goes on its own row, not in the notes.</li>
         </ul>
-        <h4>Deliveries</h4>
-        <p>On the Deliveries tab, tap <b>Packaged</b> or <b>Delivered</b> on an order (it asks for the family PIN the first time on each phone), or tick the same boxes in the sheet. Tick <b>Packaged?</b> when an order is packed and <b>Delivered?</b> when it goes out. An order ticked Delivered counts as done even if Packaged wasn't ticked. The Deliveries tab lists what's left, earliest "Time Needed By" first, and marks an order late once its time has passed on Oct 17. Empty rows with only an unticked checkbox are ignored.</p>
+        <h4>Packing and deliveries</h4>
+        <p>The Packing tab lists orders still to pack; tap <b>Packed</b> and the order moves to the Deliveries tab, where you tap <b>Delivered</b>. The pencil on any order opens it for editing. Tap <b>Packed</b> or <b>Delivered</b> on an order (it asks for the family PIN the first time on each phone), or tick the same boxes in the sheet. Tick <b>Packaged?</b> when an order is packed and <b>Delivered?</b> when it goes out. An order ticked Delivered counts as done even if Packaged wasn't ticked. Both tabs list what's left, earliest "Time Needed By" first, and marks an order late once its time has passed on Oct 17. Empty rows with only an unticked checkbox are ignored.</p>
         <h4>Needs review</h4>
         <p>If a note mentions tortillas or sausage but the amount isn't clear, or it mentions another meat or side (often a second plate on the same row), it goes on the review list and nothing is guessed for it.</p>
         <h4>Estimated sales</h4>
@@ -613,6 +682,8 @@ textarea.finput { resize:vertical; min-height:44px; }
   </main>
 </div>
 
+<div class="fabs" id="fabs"><button class="fab fabsearch" id="fabSearch" type="button" aria-label="Search orders" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
+<button class="fab" id="fabNew" type="button" data-neworder hidden aria-label="New order" title="New order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <script>
 /* ============ SETTINGS ============ */
 var SHEET_URL = "https://docs.google.com/spreadsheets/d/1ialgGVukQo7XC-jHpgMpyM57vkj3GptqTEzrFxRfk0c/edit?usp=sharing";
@@ -1123,10 +1194,20 @@ function renderDash(t,L){
   if(ms>0){ var dd=Math.floor(ms/86400000), hh=Math.floor(ms%86400000/3600000), mm=Math.floor(ms%3600000/60000); when=(dd?dd+" day"+(dd>1?"s":"")+" ":"")+hh+" hr "+(dd?"":mm+" min ")+"to go"; }
   else if(ms>-5*3600000) when="Happening now"; else when="Event is over";
   var h=tr.hist, sd=todayDelta(h,"s",t.sales);
-  var GP=groupOrders(L), packed=GP.filter(function(g){return g.packaged}).length, deliv=GP.filter(function(g){return g.delivered}).length;
+  var GP=groupOrders(L), deliv=GP.filter(function(g){return g.delivered}).length;
   var extrasSales=Math.round((t.sales-t.salesBase)*100)/100;
-  $("countLine").innerHTML='<b>'+when+'</b> \u00b7 Sat, Oct 17 \u00b7 6 PM \u00b7 Suku\'uno\'ob'+
-    (data.cols.pack>=0?' \u00b7 '+packed+' packaged':'')+(data.cols.deliv>=0?' \u00b7 '+deliv+' delivered':'');
+  $("countLine").innerHTML='<b>'+when+'</b> · Sat, Oct 17 · 6 PM · Suku\'uno\'ob';
+  // packing and delivery progress (the Packing and Deliveries tabs only list the orders)
+  var fc=$("flowCard"), hasP=data.cols.pack>=0, hasD=data.cols.deliv>=0; fc.hidden=!(hasP||hasD);
+  if(hasP||hasD){
+    var N=GP.length||1, nowT=Date.now(), w=function(n){return (n/N*100).toFixed(1)+"%"};
+    var ready=GP.filter(function(g){return g.packaged&&!g.delivered}).length, toPack=GP.filter(function(g){return !g.packaged&&!g.delivered}).length;
+    var lateN=GP.filter(function(g){ var d=g.delivered?null:timeOnEvent(g.time); return d&&d.getTime()<nowT; }).length;
+    fc.innerHTML='<div class="ch">Packing &amp; delivery <small>'+pct(deliv,GP.length)+' delivered'+(lateN?' · <span style="color:var(--down);font-weight:600">'+lateN+' late</span>':'')+'</small></div>'+
+      '<div class="stack" style="margin-top:8px"><i style="width:'+w(deliv)+';background:var(--up)"></i><i style="width:'+w(ready)+';background:var(--accent)"></i></div>'+
+      '<div class="stacklegend">'+(hasP?'<span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To pack <b>'+toPack+'</b></span><span><i style="background:var(--accent)"></i>Packed, waiting <b>'+ready+'</b></span>':'')+
+      '<span><i style="background:var(--up)"></i>Delivered <b>'+deliv+'</b></span></div>';
+  }
   $("salesCard").innerHTML='<div class="cl">Estimated sales</div><div class="cv">'+money(t.sales)+'</div>'+
     '<div class="cs">'+(sd.n>0?deltaHtml(sd,money)+'<br>':'')+(extrasSales?'includes '+money(extrasSales)+' extras &amp; combos':'')+(t.unpriced?'<br>'+t.unpriced+' extra'+(t.unpriced>1?'s':'')+' not priced yet':'')+'</div>';
   $("platesCard").innerHTML='<div class="cl">Plates</div><div class="cv">'+t.plates+'</div>'+
@@ -1184,16 +1265,33 @@ function groupOrders(L){
   });
   return out;
 }
-function itemsHtml(g){
-  return g.rows.map(function(o){
-    var ex=extrasTxt(o);
-    return '<div class="item"><b>'+o.q+' x</b> '+meatTag(o)+' '+sideTag(o)+(ex?' <span class="muted">'+esc(ex)+'</span>':'')+
-      (data.cols.pack>=0||data.cols.deliv>=0?(o.delivered?' <span class="tag g">delivered</span>':o.packaged?' <span class="tag">packaged</span>':''):'')+'</div>';
-  }).join("");
+var PENCIL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+function itemLine(o,tag){
+  var ex=extrasTxt(o);
+  return '<span class="oc-it"><i style="background:'+(o.meat?MEATVAR[o.meat]:"var(--down)")+'"></i><b>'+o.q+'</b> '+esc(o.meat||o.meatTxt||"?")+' <small>· '+esc(sideWord(o))+(ex?' · '+esc(ex):'')+'</small>'+(tag||'')+'</span>';
 }
-function priceCell(g){ return '<td class="n price"><b>'+money(g.price)+'</b>'+(g.unpriced?'<br><small class="muted">+'+g.unpriced+' extra'+(g.unpriced>1?'s':'')+' not priced</small>':'')+'</td>'; }
-function rowsTxt(g){ return g.rowList.map(function(r){return "#"+r}).join(", "); }
-
+// one compact card per person. opt: time, price, count, flag, rowState, act (button html), sub (extra line html)
+function ocard(g,opt){
+  var many=g.rows.length>1;
+  var st=function(o){ return o.delivered?"delivered":o.packaged?"packed":""; };
+  var mixed=many&&g.rows.some(function(o){ return st(o)!==st(g.rows[0]); });   // tag rows only when the order is partly done
+  var items=g.rows.map(function(o){
+    var tag=''; if(opt.rowState&&mixed){ if(o.delivered) tag='<span class="oc-tag">delivered</span>'; else if(o.packaged) tag='<span class="oc-tag">packed</span>'; }
+    return itemLine(o,tag);
+  }).join("");
+  // notes: the extras already shown on the item line are left out, unless the note needs review
+  var notes=g.rows.map(function(o){ return o.flag?o.note:noKeepNote(o.note); }).filter(Boolean).join(" / ");
+  var late=opt.time&&g._late, meta=[];
+  if(many&&opt.count) meta.push(g.q+" plates"); if(opt.price) meta.push('<b>'+money(g.price)+'</b>');
+  return '<div class="oc'+(late?' late':'')+(opt.flag&&g.flag?' flagged':'')+'"><div class="oc-main"><div class="oc-top">'+
+      (opt.time&&g.time?'<span class="oc-time">'+esc(g.time)+'</span>':'')+'<span class="oc-name">'+esc(g.name)+'</span>'+
+      (opt.flag&&g.flag?'<span class="oc-tag r">review</span>':'')+
+      (meta.length?'<span class="oc-meta">'+meta.join(" · ")+'</span>':'')+'</div>'+
+      '<div class="oc-items">'+items+'</div>'+(notes?'<div class="oc-note">'+esc(notes)+'</div>':'')+(opt.sub?'<div class="oc-sub">'+opt.sub+'</div>':'')+'</div>'+
+    (WRITE_URL?'<button class="oc-edit" type="button" data-edit="'+esc(g.key)+'" aria-label="Edit '+esc(g.name)+'\'s order" title="Edit order">'+PENCIL+'</button>':'')+(WRITE_URL?opt.act||'':'')+'</div>';
+}
+function goBtn(g,field,val,cls,label){ return '<button class="oc-go '+cls+'" type="button" data-act="'+field+'" data-val="'+val+'" data-key="'+esc(g.key)+'">'+label+'</button>'; }
+function cardList(a,opt,empty,ok){ return a.length?a.map(function(g){return ocard(g,opt(g))}).join(""):'<div class="oc-empty'+(ok?' ok':'')+'">'+empty+'</div>'; }
 
 /* ---------- New order form (adds rows to the sheet through the script) ---------- */
 var noState=null;
@@ -1220,6 +1318,7 @@ function noOpen(isEdit){
   if(!noState||(noState.edit&&!isEdit)) noReset();
   $("noTitle").textContent=noState.edit?"Edit order":"New order";
   $("noSave").textContent=noState.edit?"Save changes":"Save order";
+  $("noDel").hidden=!noState.edit;
   var names={};
   if(data) data.list.forEach(function(o){ names[o.name.replace(/\s+/g," ").trim()]=1; });
   $("noNames").innerHTML=Object.keys(names).sort().map(function(n){return '<option value="'+esc(n)+'">'}).join("");
@@ -1308,7 +1407,7 @@ function deleteOrder(key){
   var pin=askPin("delete this order"); if(!pin) return;                          // the PIN is asked every time for deletes
   var q="action=del&rows="+encodeURIComponent(JSON.stringify(g.rows.map(function(o){return {row:o.row,name:o.name}})))+"&pin="+encodeURIComponent(pin);
   jsonp(WRITE_URL+"?"+q).then(function(r){
-    if(r&&r.ok){ toast("Deleted: "+g.name); g.rows.forEach(function(o){ o._gone=true; }); data.list=data.list.filter(function(o){return !o._gone}); renderAll(); setTimeout(load,2500); return; }
+    if(r&&r.ok){ toast("Deleted: "+g.name); noState=null; noClose(); g.rows.forEach(function(o){ o._gone=true; }); data.list=data.list.filter(function(o){return !o._gone}); renderAll(); setTimeout(load,2500); return; }
     toast(editErr(r),true); if(r&&r.error==="name_mismatch") load();
   }).catch(function(){ toast("Couldn't reach the sheet. Nothing was deleted.",true); });
 }
@@ -1328,18 +1427,12 @@ document.addEventListener("click",function(e){
   if((b=t.closest("[data-ie]"))){ var it2=noState.items[+b.getAttribute("data-ie")], k=b.getAttribute("data-k"); it2[k]=Math.max(0,Math.min(10,it2[k]+(+b.getAttribute("data-d")))); noDraw(); return; }
   if(t.id==="noAddItem"){ noState.items.push({q:1,meat:null,side:null,tort:0,saus:0}); noDraw(); return; }
   if(t.id==="noSave"){ noSave(); return; }
+  if(t.id==="noDel"&&noState&&noState.edit){ deleteOrder(noState.edit.key); return; }
 });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("orderModal").hidden) noClose(); });
 
 /* ---------- Packaged / Delivered buttons (write to the sheet) ---------- */
 var pendingW={}, wN=0;
-function actBtns(g){
-  // one button acts on every sheet row for this person
-  var a=function(field,val,cls,label){ return '<button class="actbtn '+cls+'" data-act="'+field+'" data-val="'+val+'" data-key="'+esc(g.key)+'">'+label+'</button>'; };
-  if(g.delivered) return a("delivered","false","undo","Undo delivered");
-  if(g.packaged) return a("delivered","true","dl","Delivered")+a("packaged","false","undo","Undo packaged");
-  return a("packaged","true","pk","Packaged")+a("delivered","true","dl","Delivered");
-}
 function toast(msg,bad){ var t=$("toast"); t.textContent=msg; t.className="toast show"+(bad?" bad":""); clearTimeout(toast._t); toast._t=setTimeout(function(){t.className="toast"+(bad?" bad":"")},bad?7000:3200); }
 function jsonp(url){
   return new Promise(function(resolve,reject){
@@ -1364,86 +1457,90 @@ function doWrite(btn){
   var field=btn.getAttribute("data-act"), val=btn.getAttribute("data-val")==="true", key=btn.getAttribute("data-key");
   var g=groupOrders(data.list).filter(function(x){return x.key===key})[0]; if(!g) return;
   // only the rows that actually need to change
-  var todo=g.rows.filter(function(o){ var cur=field==="delivered"?o.delivered:o.packaged; return cur!==val; });
+  var todo=g.rows.filter(function(o){ return o[field]!==val; });
   if(!todo.length){ load(); return; }
-  var pin=lsGet("lmPin",""); var asked=false;
+  var pin=lsGet("lmPin",""), asked=false;
   if(!pin){ pin=prompt("Family PIN to update orders:"); if(!pin) return; pin=pin.trim(); asked=true; }
-  var label=btn.textContent; btn.disabled=true; btn.textContent="Saving...";
-  var ci=data.cols[field==="delivered"?"deliv":"pack"], doneN=0;
-  var what=field==="delivered"?(val?"delivered":"not delivered"):(val?"packaged":"not packaged");
-  function finishOk(){
-    if(asked) lsSet("lmPin",pin);
-    applyPending(data.list); renderAll();
-    toast(g.name+": marked "+what+(g.rows.length>1?" ("+g.rows.length+" items)":""));
-    setTimeout(load,3000);
-  }
-  function fail(msg){ btn.disabled=false; btn.textContent=label; if(doneN){ applyPending(data.list); renderAll(); } toast(msg+(doneN?" ("+doneN+" of "+todo.length+" items were saved.)":""),true); }
-  function step(i){
-    if(i>=todo.length) return finishOk();
-    var o=todo[i];
+  var ci=data.cols[field==="delivered"?"deliv":"pack"];
+  var what=field==="delivered"?(val?"delivered":"not delivered"):(val?"packed":"not packed");
+  // move the order right away; the sheet is ticked in the background (all rows at once)
+  var until=Date.now()+120000;
+  todo.forEach(function(o){ pendingW[o.row+"|"+field]={v:val,until:until}; o[field]=val; });
+  renderAll();
+  toast(g.name+": "+what);
+  var bad=null;
+  function undo(o){ delete pendingW[o.row+"|"+field]; data.list.forEach(function(x){ if(x.row===o.row) x[field]=!val; }); }
+  Promise.all(todo.map(function(o){
     var q="field="+field+"&value="+val+"&row="+o.row+"&col="+(ci>=0?ci+1:"")+"&name="+encodeURIComponent(o.name)+"&pin="+encodeURIComponent(pin);
-    jsonp(WRITE_URL+"?"+q).then(function(r){
-      if(r&&r.ok){ doneN++; pendingW[o.row+"|"+field]={v:val,until:Date.now()+90000}; if(asked&&doneN===1) lsSet("lmPin",pin); return step(i+1); }
-      var e=r&&r.error;
-      if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} fail("Wrong PIN. Try again."); }
-      else if(e==="name_mismatch"){ fail("Sheet row "+o.row+" says \""+(r.found||"(empty)")+"\", not \""+o.name.trim()+"\". Nothing more was changed. Refreshing..."); load(); }
-      else if(e==="no_column"){ fail("The script couldn't find the "+(field==="delivered"?"Delivered?":"Packaged?")+" column. It sees: "+((r.headers||[]).join(" | ")||"no headers")); }
-      else if(e==="not_checkbox"){ fail("Row "+o.row+" isn't a checkbox (it has \""+(r.found||"")+"\"), so it wasn't changed."); }
-      else fail("Couldn't save: "+(e||"unknown problem"));
-    }).catch(function(){ fail("Couldn't reach the sheet. Check the internet and try again."); });
-  }
-  step(0);
+    return jsonp(WRITE_URL+"?"+q).then(function(r){
+      if(r&&r.ok){ if(asked) lsSet("lmPin",pin); return true; }
+      undo(o); if(!bad) bad={o:o,r:r||{}}; return false;
+    },function(){ undo(o); if(!bad) bad={o:o,r:{error:"network"}}; return false; });
+  })).then(function(res){
+    if(!bad) return;
+    var okN=res.filter(Boolean).length, r=bad.r, o=bad.o, e=r.error, msg;
+    if(e==="wrong_pin"){ try{localStorage.removeItem("lmPin")}catch(x){} msg="Wrong PIN. "+g.name+" was not changed. Try again."; }
+    else if(e==="name_mismatch") msg="Sheet row "+o.row+" says \""+(r.found||"(empty)")+"\", not \""+o.name.trim()+"\". Refreshing...";
+    else if(e==="no_column") msg="The script couldn't find the "+(field==="delivered"?"Delivered?":"Packaged?")+" column. It sees: "+((r.headers||[]).join(" | ")||"no headers");
+    else if(e==="not_checkbox") msg="Row "+o.row+" isn't a checkbox (it has \""+(r.found||"")+"\"), so it wasn't changed.";
+    else if(e==="network") msg="Couldn't reach the sheet, so "+g.name+" was not changed. Check the internet and try again.";
+    else msg="Couldn't save "+g.name+": "+(e||"unknown problem");
+    renderAll();
+    toast(msg+(okN?" ("+okN+" of "+todo.length+" items were saved.)":""),true);
+    if(e==="name_mismatch") load();
+  });
 }
 document.addEventListener("click",function(e){ var b=e.target.closest("[data-act]"); if(b){ e.preventDefault(); doWrite(b); } });
 
-/* ---------- deliveries ---------- */
-var delivFilt="All";
+/* ---------- packing and deliveries ---------- */
+var FIND={};
 function timeOnEvent(t){ var k=timeKey(t||""); if(k===9999) return null; var d=new Date(EVENT_TIME); d.setHours(Math.floor(k/60),k%60,0,0); return d; }
-function renderDeliv(L){
+function byDue(a){ return a.slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); }); }
+function hitQ(g){ var q=norm(filt.q||""); return !q||norm(g.name+" "+g.notes.join(" ")+" "+g.loc).indexOf(q)>=0; }
+function plates(a){ return a.reduce(function(x,g){return x+g.q},0); }
+function findTxt(n,below,where){
+  if(!filt.q) return "";
+  var q='"'+esc(filt.q)+'"', many=function(k){return k+' order'+(k>1?'s match ':' matches ')};
+  if(n) return many(n)+q; if(below) return many(below)+q+' in '+where+', below'; return 'No orders match '+q; }
+function renderFlow(L){
   var hasD=data.cols.deliv>=0, hasP=data.cols.pack>=0, miss=[];
   if(!hasP) miss.push("Packaged?"); if(!hasD) miss.push("Delivered?");
-  $("delivNoCol").innerHTML=miss.length?'<div class="warn">No <b>'+miss.join("</b> or <b>")+'</b> checkbox column found in the sheet. Add it and tick it as orders move along.</div>':"";
-  var now=Date.now(), pl=function(a){return a.reduce(function(x,g){return x+g.q},0)};
-  var G=groupOrders(L);
+  var warn=miss.length?'<div class="warn">No <b>'+miss.join("</b> or <b>")+'</b> checkbox column found in the sheet. Add it and tick it as orders move along.</div>':"";
+  $("packNoCol").innerHTML=warn; $("delivNoCol").innerHTML=warn;
+  var now=Date.now(), G=groupOrders(L);
   G.forEach(function(g){ var d=g.delivered?null:timeOnEvent(g.time); g._due=d; g._late=!!(d&&d.getTime()<now); });
+  var pend=byDue(G.filter(function(g){return !g.delivered&&!g.packaged}));
+  var ready=byDue(G.filter(function(g){return !g.delivered&&g.packaged}));
   var done=G.filter(function(g){return g.delivered});
-  var ready=G.filter(function(g){return !g.delivered&&g.packaged});
-  var pend=G.filter(function(g){return !g.delivered&&!g.packaged});
-  var late=G.filter(function(g){return g._late});
-  var next=G.filter(function(g){return g._due&&!g._late}).sort(function(a,b){return a._due-b._due})[0];
-  var open=ready.length+pend.length;
-  var bd=$("delivBadge"); bd.hidden=!(hasD||hasP)||!open; bd.textContent=open; bd.style.background=late.length?"var(--down)":"var(--accent)";
-  $("delivKpis").innerHTML='<div class="calmrow3">'+
-      '<div class="ccard tint-peach"><div class="cl">To package</div><div class="cv">'+pend.length+'</div><div class="cs">'+pl(pend)+' plates</div></div>'+
-      '<div class="ccard tint-blue"><div class="cl">Ready to go</div><div class="cv">'+ready.length+'</div><div class="cs">'+pl(ready)+' plates</div></div>'+
-      '<div class="ccard tint-green"><div class="cl">Delivered</div><div class="cv">'+done.length+'</div><div class="cs">of '+G.length+' orders</div></div></div>'+
-    '<div class="infoline">'+(next?'<span>Next due <b>'+esc(next.time)+'</b> \u00b7 '+esc(next.name)+(next.packaged?' (packaged)':' (not packaged)')+'</span>':'')+
-      (late.length?'<span class="bad">'+late.length+' late</span>':'')+'</div>';
-  var P=pl(G)||1, w=function(a){return (pl(a)/P*100).toFixed(1)+"%"};
-  $("delivStack").innerHTML='<i style="width:'+w(done)+';background:var(--up)" title="Delivered"></i><i style="width:'+w(ready)+';background:var(--accent)" title="Packaged"></i>';
-  $("delivLegend").innerHTML='<span><i style="background:var(--up)"></i>Delivered <b>'+pl(done)+'</b></span><span><i style="background:var(--accent)"></i>Packaged, waiting <b>'+pl(ready)+'</b></span><span><i style="background:var(--panel2);border:1px solid var(--line)"></i>To package <b>'+pl(pend)+'</b></span>';
-  $("delivPct").textContent=Math.round(pl(done)/P*100)+"% of plates delivered · "+Math.round((pl(done)+pl(ready))/P*100)+"% packaged";
-  $("delivChips").innerHTML=["All","Has a time","Late"].map(function(c){return '<button data-df="'+c+'" class="'+(delivFilt===c?"on":"")+'">'+c+(c==="Late"&&late.length?" ("+late.length+")":"")+'</button>'}).join("");
-  var sq=norm(filt.q||""), hit=function(g){ return !sq||norm(g.name+" "+g.notes.join(" ")+" "+g.loc).indexOf(sq)>=0; };
-  if(sq){ var nHit=G.filter(hit).length; $("delivFound").innerHTML='<div class="findnote">'+(nHit?nHit+' order'+(nHit>1?'s':'')+' match "'+esc(filt.q)+'"':'No orders match "'+esc(filt.q)+'"')+'</div>'; if(done.some(hit)) $("doneBox").open=true; } else $("delivFound").innerHTML="";
-  var order=function(a){ var r=a.filter(hit).slice().sort(function(x,y){ var p=x._due?x._due.getTime():Infinity, q=y._due?y._due.getTime():Infinity; return (p-q)||(x.first-y.first); });
-    if(delivFilt==="Has a time") r=r.filter(function(g){return g._due}); if(delivFilt==="Late") r=r.filter(function(g){return g._late}); return r; };
-  var part=function(g){ var n=g.rows.length; if(n<2) return "";
-    if(!g.delivered&&g.delivN) return ' <span class="tag">partly delivered '+g.delivN+' of '+n+'</span>';
-    if(!g.packaged&&g.packedN) return ' <span class="tag">partly packaged '+g.packedN+' of '+n+'</span>'; return ""; };
-  var row=function(g){ return '<tr class="'+(g._late?"flag":"")+'"><td><b>'+esc(g.time||"")+'</b>'+(g._late?' <span class="tag r">late</span>':'')+part(g)+'</td><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td>'+(data.cols.loc>=0?'<td>'+esc(g.loc)+'</td>':'')+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+(WRITE_URL?'<td class="act">'+actBtns(g)+'</td>':'')+'</tr>'; };
-  var head='<thead><tr><th>Needed by</th><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th>'+(data.cols.loc>=0?'<th>Location</th>':'')+'<th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Update</th>':'')+'</tr></thead>';
-  var table=function(a,empty){ var r=order(a); return r.length?'<table>'+head+'<tbody>'+r.map(row).join("")+'</tbody></table>':'<p class="'+(a.length?"muted":"ok")+'" style="margin:4px 0">'+(a.length?"Nothing in this filter.":empty)+'</p>'; };
-  var cnt=function(a){ var n=a.filter(hit).length; return sq?n+" of "+a.length:a.length; };
-  $("readyTitle").textContent="Packaged, waiting to go out ("+cnt(ready)+")";
-  $("readyTable").innerHTML=table(ready,"Nothing packaged and waiting.");
-  $("pendTitle").textContent="Still to package ("+cnt(pend)+")";
-  $("pendTable").innerHTML=table(pend,"Everything is packaged.");
-  $("doneTitle").textContent="Delivered ("+cnt(done)+")";
-  var doneF=done.filter(hit);
-  $("doneTable").innerHTML=doneF.length?'<table>'+head.replace("Needed by","Was needed by")+'<tbody>'+doneF.map(row).join("")+'</tbody></table>':'<p class="muted" style="margin:4px 0">'+(done.length?"Nothing in this search.":"Nothing ticked as delivered yet.")+'</p>';
+  var toGo=hasP?ready:pend;                       // with no Packaged? column, everything not delivered is ready to go
+  var lateP=pend.filter(function(g){return g._late}).length, lateD=toGo.filter(function(g){return g._late}).length;
+  var badge=function(id,n,late,on){ var b=$(id); b.hidden=!on||!n; b.textContent=n; b.style.background=late?"var(--down)":"var(--accent)"; };
+  badge("packBadge",pend.length,lateP,hasP); badge("delivBadge",toGo.length,lateD,hasD);
+  var loc=data.cols.loc>=0;
+
+  // PACKING: only what still needs packing
+  var pf=pend.filter(hitQ), rf=ready.filter(hitQ), df=done.filter(hitQ), gf=toGo.filter(hitQ);
+  $("packInfo").innerHTML=pend.length?'<span><b>'+pend.length+'</b> to pack · '+plates(pend)+' plates</span>'+(lateP?'<span class="bad">'+lateP+' late</span>':''):'';
+  $("packList").innerHTML=cardList(pf,function(g){ return {time:1,rowState:1,act:goBtn(g,"packaged","true","","Packed")}; },
+    pend.length?"Nothing to pack matches the search.":"Everything is packed.",!pend.length);
+  $("packedBox").hidden=!hasP||!ready.length;
+  $("packedTitle").textContent="Packed, waiting to go out ("+(filt.q?rf.length+" of ":"")+ready.length+")";
+  $("packedList").innerHTML=cardList(rf,function(g){ return {time:1,act:goBtn(g,"packaged","false","undo","Undo")}; },"Nothing here matches the search.");
+  if(filt.q&&!pf.length&&rf.length) $("packedBox").open=true;
+  FIND.pack=findTxt(pf.length,rf.length,"Packed");
+
+  // DELIVERIES: only what is packed and waiting to go out
+  $("delivInfo").innerHTML=(toGo.length?'<span><b>'+toGo.length+'</b> to deliver · '+plates(toGo)+' plates</span>':'')+(lateD?'<span class="bad">'+lateD+' late</span>':'')+
+    (hasP&&pend.length?'<span>'+pend.length+' still being packed · <button class="link" data-goto="pack">Packing</button></span>':'');
+  $("delivList").innerHTML=cardList(gf,function(g){ return {time:1,price:1,rowState:1,sub:loc&&g.loc?esc(g.loc):"",act:goBtn(g,"delivered","true","dl","Delivered")}; },
+    toGo.length?"Nothing to deliver matches the search.":hasP&&pend.length?"Nothing packed yet. Packed orders show up here.":"Everything is delivered.",!toGo.length&&!pend.length);
+  $("doneBox").hidden=!done.length;
+  $("doneTitle").textContent="Delivered ("+(filt.q?df.length+" of ":"")+done.length+")";
+  $("doneList").innerHTML=cardList(df,function(g){ return {price:1,act:goBtn(g,"delivered","false","undo","Undo")}; },"Nothing here matches the search.");
+  if(filt.q&&!gf.length&&df.length) $("doneBox").open=true;
+  FIND.deliv=findTxt(gf.length,df.length,"Delivered");
 }
-document.addEventListener("click",function(e){ var b=e.target.closest("[data-df]"); if(!b||!data) return; delivFilt=b.getAttribute("data-df"); renderDeliv(data.list); cardify(); });
+function showFind(){ $("findNote").innerHTML=FIND[currentView()]||""; }
 
 /* ---------- phone cards: label each cell with its column name ---------- */
 function cardify(){
@@ -1475,37 +1572,26 @@ function renderAll(){
   renderDash(t,L);
 
   // kitchen prep
-  $("prepMeat").innerHTML=listCard("Meats to cook","plates + extra pieces",[
-    {c:MEATVAR.Chicken,n:"Chicken",d:t.meat.Chicken+" plates + "+t.chickExtra+" extra",v:t.meat.Chicken+t.chickExtra},
-    {c:MEATVAR.Pork,n:"Pork",d:t.meat.Pork+" plates + "+t.porkExtra+" extra",v:t.meat.Pork+t.porkExtra},
-    {c:MEATVAR["Italian Sausage"],n:"Italian Sausage",d:t.meat["Italian Sausage"]+" plates + "+t.sausExtra+" extra",v:t.sausTotal}]);
+  var xd=function(p,x){ return x?p+" plates + "+x+" extra":""; };
+  $("prepMeat").innerHTML=listCard("Meats to cook","pieces",[
+    {c:MEATVAR.Chicken,n:"Chicken",d:xd(t.meat.Chicken,t.chickExtra),v:t.meat.Chicken+t.chickExtra},
+    {c:MEATVAR.Pork,n:"Pork",d:xd(t.meat.Pork,t.porkExtra),v:t.meat.Pork+t.porkExtra},
+    {c:MEATVAR["Italian Sausage"],n:"Italian Sausage",d:xd(t.meat["Italian Sausage"],t.sausExtra),v:t.sausTotal}]);
   $("prepSide").innerHTML=listCard("Sides to make","",[
-    {c:"var(--rice)",n:"Rice and Beans",d:"plates",v:t.side.rice},
-    {c:"var(--tort)",n:"Tortillas to make",d:t.tortPlates+" tortilla plates x 2 + "+t.tortExtra+" extra",v:t.tortTotal}]);
+    {c:"var(--rice)",n:"Rice and Beans",d:"",v:t.side.rice},
+    {c:"var(--tort)",n:"Tortillas",d:t.tortPlates+" plates x 2"+(t.tortExtra?" + "+t.tortExtra+" extra":""),v:t.tortTotal}]);
   $("comboFull").innerHTML=comboTable(t);
-  var tm={}; L.forEach(function(o){ var k=o.time||"No time given"; if(!tm[k]) tm[k]={orders:0,plates:0,names:[]}; tm[k].orders++; tm[k].plates+=o.q; tm[k].names.push(o.name); });
-  var tk=Object.keys(tm).sort(function(a,b){return timeKey(a)-timeKey(b)});
-  $("timeTable").innerHTML='<table class="keep"><thead><tr><th>Needed by</th><th class="n">Orders</th><th class="n">Plates</th><th>Who</th></tr></thead><tbody>'+
-    tk.map(function(k){var v=tm[k]; return '<tr><td><b>'+esc(k)+'</b></td><td class="n">'+v.orders+'</td><td class="n">'+v.plates+'</td><td class="muted">'+(k==="No time given"?"everyone else":esc(v.names.join(", ")))+'</td></tr>'}).join("")+'</tbody></table>';
-  var kq=norm(filt.q||"");
-  if(kq){
-    var KG=groupOrders(L).filter(function(g){ return norm(g.name+" "+g.notes.join(" ")).indexOf(kq)>=0; });
-    $("prepFind").innerHTML='<div class="panel" style="margin-bottom:12px"><div class="ph"><h3>Matching orders ('+KG.length+')</h3><button class="link" data-sclear="1">Clear</button></div>'+
-      (KG.length?'<div class="tablewrap"><table><thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th>Status</th></tr></thead><tbody>'+
-        KG.map(function(g){ return '<tr><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+'</td><td>'+esc(g.time)+'</td><td>'+(g.delivered?'<span class="tag g">delivered</span>':g.packaged?'<span class="tag">packaged</span>':'<span class="tag o">to package</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>'
-        :'<p class="muted" style="margin:4px 0">No orders match "'+esc(filt.q)+'".</p>')+'</div>';
-  } else $("prepFind").innerHTML="";
-  var nt=L.filter(function(o){return o.note&&(!kq||norm(o.name+" "+o.note).indexOf(kq)>=0)});
-  $("notesTable").innerHTML=nt.length?'<table><thead><tr><th>Name</th><th class="n">Qty</th><th>Meat</th><th>Side</th><th>Note</th><th>Counted</th></tr></thead><tbody>'+
-    nt.map(function(o){return '<tr class="'+(o.flag?"flag":"")+'"><td>'+esc(o.name)+'</td><td class="n">'+o.q+'</td><td>'+meatTag(o)+'</td><td>'+sideTag(o)+'</td><td>'+esc(o.note)+'</td><td>'+(esc(extrasTxt(o))||(o.flag?'<span class="tag r">review</span>':'<span class="muted">nothing extra</span>'))+'</td></tr>'}).join("")+'</tbody></table>':'<p class="muted">No notes on any order.</p>';
+  var kn=L.filter(function(o){ return o.flag||noKeepNote(o.note); });
+  $("notesTitle").textContent="Special notes ("+kn.length+")";
+  $("notesList").innerHTML=kn.length?kn.map(function(o){ return '<div class="kn"><b>'+esc(o.name)+'</b> <small>'+o.q+' '+esc(o.meat||o.meatTxt||"?")+' · '+esc(sideWord(o))+(extrasTxt(o)?' · '+esc(extrasTxt(o)):'')+'</small><div>'+esc(o.flag?o.note:noKeepNote(o.note))+'</div></div>'; }).join(""):'<p class="muted" style="margin:4px 0">No special notes.</p>';
 
   // review
   $("reviewTitle").textContent="Needs review ("+t.review+")";
   $("reviewFull").innerHTML=reviewItems(L);
 
   renderOrders();
-  renderDeliv(L);
-  cardify(); swipeDots();
+  renderFlow(L);
+  cardify(); showFind(); swipeDots();
   $("pPork").textContent=PRICES.Pork; $("pChicken").textContent=PRICES.Chicken; $("pSausage").textContent=PRICES["Italian Sausage"];
 }
 function chips(el,key,opts){
@@ -1530,11 +1616,9 @@ function renderOrders(){
     return true;
   });
   var pl=G.reduce(function(a,g){return a+g.q},0), lines=G.reduce(function(a,g){return a+g.rows.length},0);
-  $("ordersTable").innerHTML='<thead><tr><th>Name</th><th class="n">Qty</th><th>Items</th><th>Notes</th><th>Needed by</th><th class="n">Total price</th><th>Sheet rows</th>'+(WRITE_URL?'<th>Change</th>':'')+'</tr></thead><tbody>'+
-    (G.length?G.map(function(g){ return '<tr class="'+(g.flag?"flag":"")+'"><td>'+esc(g.name)+'</td><td class="n"><b>'+g.q+'</b></td><td class="items">'+itemsHtml(g)+'</td><td>'+esc(g.notes.join(" / "))+(g.flag?'<br><span class="tag r">review</span>':'')+'</td><td>'+esc(g.time)+'</td>'+priceCell(g)+'<td class="muted">'+rowsTxt(g)+'</td>'+
-      (WRITE_URL?'<td class="act"><button class="actbtn pk editbtn" type="button" data-edit="'+esc(g.key)+'">Edit order</button><button class="actbtn delbtn" type="button" data-del="'+esc(g.key)+'" title="Delete this order">Delete</button></td>':'')+'</tr>'; }).join("")
-      :'<tr><td colspan="8" class="muted">No orders match.</td></tr>')+
-    '</tbody><tfoot><tr><td>'+G.length+' orders</td><td class="n">'+pl+'</td><td colspan="5" class="muted">'+lines+' rows in the sheet</td></tr></tfoot>';
+  $("ordersList").innerHTML=cardList(G,function(){ return {time:1,price:1,count:1,flag:1}; },"No orders match.");
+  $("ordersFoot").innerHTML=G.length?'<b>'+G.length+'</b> orders · '+pl+' plates · '+lines+' rows in the sheet':'';
+  FIND.orders=findTxt(G.length);
 }
 
 /* ---------- loading ---------- */
@@ -1563,33 +1647,46 @@ function load(){
 function tick(){ state.left--; $("countdown").textContent="· next in "+Math.max(state.left,0)+"s"; if(state.left<=0) load(); }
 
 /* ---------- UI wiring ---------- */
-var TITLES={dashboard:"Dashboard",orders:"Orders",prep:"Kitchen Prep",deliv:"Deliveries",review:"Needs Review",help:"How it counts"};
-function viewOrder(){ return [].map.call(document.querySelectorAll("#nav button"),function(b){return b.getAttribute("data-view")}); }
+var TITLES={dashboard:"Dashboard",orders:"Orders",prep:"Kitchen",pack:"Packing",deliv:"Deliveries",review:"Needs Review",help:"How it counts"};
+function viewOrder(){ return [].filter.call(document.querySelectorAll("#nav button"),function(b){return b.offsetParent!==null}).map(function(b){return b.getAttribute("data-view")}); }
 function currentView(){ var on=document.querySelector("#nav button.on"); return on?on.getAttribute("data-view"):"dashboard"; }
 function swipeDots(){ var vs=viewOrder(), c=currentView(); var el=$("swipeHint"); if(!el) return;
   el.innerHTML=vs.map(function(v){return '<i class="'+(v===c?"on":"")+'"></i>'}).join("")+'<br><span>swipe left or right to change tabs</span>'; }
-var FAB_VIEWS={dashboard:1,orders:1,prep:1,deliv:1};
+var FAB_VIEWS={dashboard:1,orders:1,prep:1,pack:1,deliv:1}, SEARCH_VIEWS={orders:1,pack:1,deliv:1};
 function go(v,dir){
   document.body.classList.toggle("fab-off",!FAB_VIEWS[v]);
+  document.body.classList.toggle("sv",!!SEARCH_VIEWS[v]);
+  document.body.classList.toggle("srch-off",!SEARCH_VIEWS[v]&&v!=="dashboard");
   document.querySelectorAll("#nav button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-view")===v)});
   document.querySelectorAll(".view").forEach(function(s){ s.hidden=s.id!=="view-"+v; s.classList.remove("slide-l","slide-r"); });
   var cur=$("view-"+v); if(dir&&cur){ void cur.offsetWidth; cur.classList.add(dir>0?"slide-l":"slide-r"); }
   swipeDots();
-  $("title").textContent=TITLES[v]; window.scrollTo(0,0);
+  $("title").textContent=TITLES[v]; window.scrollTo(0,0); showFind();
   if(v==="dashboard"&&data) drawCharts(totals(data.list),data.list);
 }
 document.querySelectorAll("#nav button").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-view"))}; });
-document.querySelectorAll("[data-goto]").forEach(function(b){ b.onclick=function(){go(b.getAttribute("data-goto"))}; });
-document.addEventListener("click",function(e){ var b=e.target.closest(".chips button"); if(!b||!data) return; filt[b.getAttribute("data-k")]=b.getAttribute("data-v"); renderOrders(); cardify(); });
+document.addEventListener("click",function(e){ var b=e.target.closest("[data-goto]"); if(b){ e.preventDefault(); go(b.getAttribute("data-goto")); } });
+$("helpBtn").onclick=function(){ go("help"); };
+document.addEventListener("click",function(e){ var b=e.target.closest(".chips button"); if(!b||!data) return; filt[b.getAttribute("data-k")]=b.getAttribute("data-v"); renderOrders(); cardify(); showFind(); });
 $("clearFilt").onclick=function(){ filt.meat="All"; filt.side="All"; filt.flag="All"; setSearch(""); if(data){ renderOrders(); cardify(); } };
 var searchT=null;
 function setSearch(v){
   filt.q=v;
-  document.querySelectorAll("[data-search]").forEach(function(inp){ if(inp.value!==v) inp.value=v; var c=inp.parentNode.querySelector("[data-sclear]"); if(c) c.hidden=!v; });
+  document.querySelectorAll("[data-search]").forEach(function(inp){ if(inp.value!==v) inp.value=v; var c=inp.parentNode.querySelector("[data-sclear]"); if(c) c.classList.toggle("empty",!v); });
+  $("fabSearch").classList.toggle("on",!!v);
   clearTimeout(searchT); searchT=setTimeout(function(){ if(data) renderAll(); },120);
 }
-document.addEventListener("input",function(e){ if(e.target.matches&&e.target.matches("[data-search]")) setSearch(e.target.value); });
-document.addEventListener("click",function(e){ var c=e.target.closest("[data-sclear]"); if(!c) return; setSearch(""); var inp=c.parentNode.querySelector("[data-search]"); if(inp) inp.focus(); });
+document.addEventListener("input",function(e){ if(e.target.matches&&e.target.matches("[data-search]")){ setSearch(e.target.value); window.scrollTo(0,0); } });
+function openSearch(){ document.body.classList.add("search-on"); $("search").focus(); }
+function closeSearch(){ document.body.classList.remove("search-on"); if(filt.q) setSearch(""); $("search").blur(); }
+// the x clears the search; tapped again on an empty search it closes the bar
+document.addEventListener("click",function(e){ var c=e.target.closest("[data-sclear]"); if(!c) return; if(!filt.q){ closeSearch(); return; } setSearch(""); $("search").focus(); });
+$("fabSearch").onclick=function(){
+  if(!SEARCH_VIEWS[currentView()]) go("orders");
+  if(document.body.classList.contains("search-on")&&!filt.q&&document.activeElement===$("search")){ closeSearch(); return; }
+  openSearch();
+};
+$("search").addEventListener("keydown",function(e){ if(e.key==="Enter") this.blur(); if(e.key==="Escape") closeSearch(); });
 $("refreshBtn").onclick=function(){ load(); };
 (function(){
   var sx=0, sy=0, st=0, ok=false;
@@ -1616,7 +1713,6 @@ showNewOrder(); document.addEventListener("DOMContentLoaded",showNewOrder);
 load(); state.timer=setInterval(tick,1000);
 </script>
 
-<button class="fab" id="fabNew" type="button" data-neworder hidden aria-label="New order" title="New order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="modal" id="orderModal" hidden>
   <div class="msheet" role="dialog" aria-modal="true" aria-label="New order">
     <div class="mhead"><h3 id="noTitle">New order</h3><button class="mclose" type="button" data-noclose aria-label="Close">&times;</button></div>
@@ -1634,6 +1730,7 @@ load(); state.timer=setInterval(tick,1000);
     <div class="nsum" id="noSum"></div>
     <div class="nerr" id="noErr"></div>
     <button class="nsave" type="button" id="noSave">Save order</button>
+    <button class="ndel" type="button" id="noDel" hidden>Delete this order</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
